@@ -37,8 +37,10 @@ module timekeeper_legacy
 
    //////////////////////////////////////////////////////////////////////////
    // PPS edge detection logic
+   // ASYNC_REG ensures proper metastability settling for the PPS signal
+   // which may originate from a different clock domain.
    //////////////////////////////////////////////////////////////////////////
-   reg pps_del, pps_del2;
+   (* ASYNC_REG = "TRUE" *) reg pps_del, pps_del2;
    always @(posedge clk)
      {pps_del2,pps_del} <= {pps_del, pps};
 

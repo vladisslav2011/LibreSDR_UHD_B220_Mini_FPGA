@@ -269,7 +269,42 @@ always@(posedge sync_200M) begin
     end
     
 end
-    assign ext_ref = is10meg?sync_10M:PPS_IN_EXT;  //ref_sel high select 10MHz low select 1pps
+
+    ///////////////////////////////////////////////////////////////////////
+    // CDC synchronizers for PPS_IN_EXT and sync_10M into ref_pll_clk domain
+    // FIX: PPS_IN_EXT was used raw (async pin) in combinational mux.
+    // FIX: sync_10M was generated in sync_200M domain but consumed in
+    //      ref_pll_clk domain (unrelated 200 MHz clocks from different MMCMs).
+    ///////////////////////////////////////////////////////////////////////
+    wire pps_in_ext_refpll;  // PPS_IN_EXT synchronized to ref_pll_clk
+    wire sync_10M_refpll;    // sync_10M synchronized to ref_pll_clk
+
+    synchronizer #(.WIDTH(1), .STAGES(2), .INITIAL_VAL(0), .FALSE_PATH_TO_IN(1))
+    sync_pps_ext (
+        .clk(ref_pll_clk), .rst(ref_pll_rst),
+        .in(PPS_IN_EXT), .out(pps_in_ext_refpll)
+    );
+
+    synchronizer #(.WIDTH(1), .STAGES(2), .INITIAL_VAL(0), .FALSE_PATH_TO_IN(1))
+    sync_10m_cdc (
+        .clk(ref_pll_clk), .rst(ref_pll_rst),
+        .in(sync_10M), .out(sync_10M_refpll)
+    );
+
+    ///////////////////////////////////////////////////////////////////////
+    // CDC synchronizer for is10meg into ref_pll_clk domain
+    // FIX: is10meg is the MMCM locked output of clk_wiz_0 (async to
+    //      ref_pll_clk). It gates the ext_ref mux feeding b205_ref_pll.
+    ///////////////////////////////////////////////////////////////////////
+    wire is10meg_refpll;
+
+    synchronizer #(.WIDTH(1), .STAGES(2), .INITIAL_VAL(0), .FALSE_PATH_TO_IN(1))
+    sync_is10meg (
+        .clk(ref_pll_clk), .rst(ref_pll_rst),
+        .in(is10meg), .out(is10meg_refpll)
+    );
+
+    assign ext_ref = is10meg_refpll ? sync_10M_refpll : pps_in_ext_refpll;  //ref_sel high select 10MHz low select 1pps
  
     assign REF_CLK_REQ = 1'b1;
     assign PPS_LED = lpps;
@@ -415,6 +450,19 @@ b205_ref_pll(
     assign CAT_SYNC = 1'b0;
  
     ///////////////////////////////////////////////////////////////////////
+    // CDC synchronizer for ext_ref_locked into bus_clk domain
+    // FIX: ext_ref_locked is output of b205_ref_pll (ref_pll_clk domain)
+    //      but rb_misc is read by b200_core in bus_clk domain.
+    ///////////////////////////////////////////////////////////////////////
+    wire ext_ref_locked_busclk;
+
+    synchronizer #(.WIDTH(1), .STAGES(2), .INITIAL_VAL(0), .FALSE_PATH_TO_IN(1))
+    sync_ext_ref_locked (
+        .clk(bus_clk), .rst(bus_rst),
+        .in(ext_ref_locked), .out(ext_ref_locked_busclk)
+    );
+
+    ///////////////////////////////////////////////////////////////////////
     // b200 core
     ///////////////////////////////////////////////////////////////////////
     wire [9:0] fp_gpio_in, fp_gpio_out, fp_gpio_ddr;
@@ -439,7 +487,7 @@ b205_ref_pll(
         .pps_select(pps_select),
 
         .sclk(sclk), .sen(sen), .mosi(mosi), .miso(miso),
-        .rb_misc({31'b0, ext_ref_locked}), .misc_outs(misc_outs),
+        .rb_misc({31'b0, ext_ref_locked_busclk}), .misc_outs(misc_outs),
 
 
         .debug_scl(GPIF_CTL8), .debug_sda(GPIF_CTL6),

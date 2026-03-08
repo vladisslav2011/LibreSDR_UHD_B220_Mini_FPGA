@@ -44,13 +44,14 @@ begin
 		state <= 2'd0;
 	   else
 	    state <= 2'd1;
-	    
-	    done <= 1'b0;
-		addr_sig <= 8'd0;
-		wr_data <= 8'd0;
-		rd_sig <= 1'b0;
-		wr_sig <= 1'b0;
-		counter <= 1'b0;
+	   // FIX: These were outside the if/else due to missing begin/end,
+	   // causing them to execute unconditionally every clock cycle.
+	   done <= 1'b0;
+	   addr_sig <= 8'd0;
+	   wr_data <= 8'd0;
+	   rd_sig <= 1'b0;
+	   wr_sig <= 1'b0;
+	   counter <= 1'b0;
 	end
 	else begin
 		case(state)
@@ -93,10 +94,13 @@ begin
 					addr_sig <= counter;	//在eeprom地址写入addr
 				end
 			end
-			2'd2:begin
-				state <= 2'd2;
-				done  <= 1'b1;
-			end
+		2'd2:begin
+			state <= 2'd2;
+			done  <= 1'b1;
+		end
+		default: begin
+			state <= 2'd0;
+		end
 		endcase
 	end
 end

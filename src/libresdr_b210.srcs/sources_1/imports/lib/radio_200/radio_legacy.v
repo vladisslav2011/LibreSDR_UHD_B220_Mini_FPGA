@@ -216,27 +216,27 @@ generate
 
       always @* begin
          case(rb_addr_user)
-            8'd0 : rb_data_user <= {user_reg_1_value, user_reg_0_value};
-            default : rb_data_user <= 64'd0;
+             8'd0 : rb_data_user = {user_reg_1_value, user_reg_0_value};
+             default : rb_data_user = 64'd0;
          endcase
       end
 
    end else begin    //for USER_SETTINGS == 1
-      always @* rb_data_user <= 64'd0;
+       always @* rb_data_user = 64'd0;
    end
 endgenerate
 
    always @*
      case(rb_addr)
-       3'd0 : rb_data <= { 32'b0, test_readback };
-       3'd1 : rb_data <= vita_time;
-       3'd2 : rb_data <= vita_time_lastpps;
-       3'd3 : rb_data <= {tx, rx};
-       3'd4 : rb_data <= {54'h0,fp_gpio_readback};
-       3'd5 : rb_data <= {59'h0,rx_flow_ctrl_busy,ibs_state[3:0]}; // Monitor state of RX state machine.
-//     3'd6 : rb_data <= <unused>;
-       3'd7 : rb_data <= rb_data_user;
-       default : rb_data <= 64'd0;
+        3'd0 : rb_data = { 32'b0, test_readback };
+        3'd1 : rb_data = vita_time;
+        3'd2 : rb_data = vita_time_lastpps;
+        3'd3 : rb_data = {tx, rx};
+        3'd4 : rb_data = {54'h0,fp_gpio_readback};
+        3'd5 : rb_data = {59'h0,rx_flow_ctrl_busy,ibs_state[3:0]}; // Monitor state of RX state machine.
+//     3'd6 : rb_data = <unused>;
+        3'd7 : rb_data = rb_data_user;
+        default : rb_data = 64'd0;
      endcase // case (rb_addr)
 
    //

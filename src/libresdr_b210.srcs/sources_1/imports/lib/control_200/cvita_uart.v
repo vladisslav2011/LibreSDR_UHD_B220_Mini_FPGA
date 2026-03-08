@@ -132,11 +132,11 @@ module cvita_uart
     localparam TXD_STATE_DROP_FIFO = 3;
 
     always @(posedge clk) begin
-        if (rst) begin;
+        if (rst) begin
             txd_state <= TXD_STATE_RECV_CHDR;
             rxd_enable <= 1'b0;
         end
-        if (i_tvalid && i_tready) case (txd_state)
+        else if (i_tvalid && i_tready) case (txd_state)
 
         TXD_STATE_RECV_CHDR: begin
             txd_state <= (i_tdata[61])? TXD_STATE_RECV_TIME : TXD_STATE_RECV_BODY;

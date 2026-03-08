@@ -124,11 +124,11 @@ module chdr_16sc_to_32f
    always @(*) 
      case(state)
      
-       HEADER: o_tdata <= {i_tdata[63:48], chdr_payload_lines,
+       HEADER: o_tdata = {i_tdata[63:48], chdr_payload_lines,
 			  set_sid ? {i_tdata[15:0], my_newhome[15:0]}:i_tdata[31:0]};
-       TIME: o_tdata <= i_tdata;
-       ODD: o_tdata <= {s0_imag,s0_real};
-       EVEN: o_tdata <= {s1_imag,s1_real};
+       TIME: o_tdata = i_tdata;
+       ODD: o_tdata = {s0_imag,s0_real};
+       EVEN: o_tdata = {s1_imag,s1_real};
   
        
        default : o_tdata = i_tdata;

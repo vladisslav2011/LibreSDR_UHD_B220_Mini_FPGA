@@ -59,6 +59,10 @@ module ltc2630_spi  (
                         state <= IDLE;
                     end
                 end
+
+                default: begin
+                    state <= IDLE;
+                end
             endcase
         end
     end

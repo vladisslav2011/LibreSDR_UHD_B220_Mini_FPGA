@@ -120,11 +120,11 @@ module radio_ctrl_proc
 
    always @*
      case (rc_state)
-       RC_HEAD : ctrl_tready <= 1'b1;
-       RC_TIME : ctrl_tready <= ctrl_tlast | go;
-       RC_DATA : ctrl_tready <= ready;
-       RC_DUMP : ctrl_tready <= 1'b1;
-       default : ctrl_tready <= 1'b0;
+       RC_HEAD : ctrl_tready = 1'b1;
+       RC_TIME : ctrl_tready = ctrl_tlast | go;
+       RC_DATA : ctrl_tready = ready;
+       RC_DUMP : ctrl_tready = 1'b1;
+       default : ctrl_tready = 1'b0;
      endcase // case (rc_state)
   
     //用于比较时间，判断输入的数据和当前的预期的时间的早晚关系
@@ -143,10 +143,10 @@ module radio_ctrl_proc
 
    always @*
      case (rc_state)
-       RC_RESP_HEAD : { resp_tlast, resp_tdata } <= {1'b0, 4'hA, seqnum, 16'd24, sid[15:0], sid[31:16] };
-       RC_RESP_TIME : { resp_tlast, resp_tdata } <= {1'b0, cmd_time};
-       RC_RESP_DATA : { resp_tlast, resp_tdata } <= {1'b1, readback};
-       default :      { resp_tlast, resp_tdata } <= 65'h0;
+       RC_RESP_HEAD : { resp_tlast, resp_tdata } = {1'b0, 4'hA, seqnum, 16'd24, sid[15:0], sid[31:16] };
+       RC_RESP_TIME : { resp_tlast, resp_tdata } = {1'b0, cmd_time};
+       RC_RESP_DATA : { resp_tlast, resp_tdata } = {1'b1, readback};
+       default :      { resp_tlast, resp_tdata } = 65'h0;
      endcase // case (rc_state)
    
    assign resp_tvalid = (rc_state == RC_RESP_HEAD) | (rc_state == RC_RESP_TIME) | (rc_state == RC_RESP_DATA);

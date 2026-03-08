@@ -84,10 +84,10 @@ module b200_core
     localparam SR_CORE_GPSDO_ST  = 8'd40;
     localparam SR_CORE_SYNC      = 8'd48;
     localparam COMPAT_MAJOR      = 16'h0010;
-    localparam COMPAT_MINOR      = 16'h0000;
+    localparam COMPAT_MINOR      = 16'h0001;  // v16.1: all RTL audit fixes (CDC, COMBDLY, XDC, CASEINCOMPLETE, logic)
 
-    reg [1:0] lock_state;
-    reg [1:0] lock_state_r;
+    (* ASYNC_REG = "TRUE" *) reg [1:0] lock_state;
+    (* ASYNC_REG = "TRUE" *) reg [1:0] lock_state_r;
 
     always @(posedge bus_clk)
       if (bus_rst)
@@ -105,11 +105,19 @@ module b200_core
     pps_generator #(.CLK_FREQ(100000000)) pps_gen
     (.clk(bus_clk), .reset(1'b0), .pps(int_pps));
     assign pps_fpga_int = int_pps;
-    // Flop PPS signals into radio clock domain
-    reg [1:0] 	 gpsdo_pps_del, ext_pps_del, int_pps_del;
+
+    // Synchronize PPS reference from ref_pll_clk domain into radio_clk domain.
+    // FIX: pps_ref (lpps) is generated in ref_pll_clk (200 MHz) but consumed
+    // in radio_clk (~61 MHz). Without CDC this causes metastability.
+    wire pps_ref_radio;
+    synchronizer #(.WIDTH(1), .STAGES(2), .INITIAL_VAL(0), .FALSE_PATH_TO_IN(1))
+    sync_pps_ref (
+        .clk(radio_clk), .rst(radio_rst),
+        .in(pps_ref), .out(pps_ref_radio)
+    );
 
     // PPS mux
-    wire pps =   (pps_select == 2'b11)? 1'b0 : pps_ref;
+    wire pps =   (pps_select == 2'b11)? 1'b0 : pps_ref_radio;
 
     /*******************************************************************
      * Response mux Routing logic
@@ -234,11 +242,11 @@ module b200_core
 
     always @*
      case(rb_addr)
-       2'd0 : rb_data <= { 32'hACE0BA5E, COMPAT_MAJOR, COMPAT_MINOR };
-       2'd1 : rb_data <= { 32'b0, spi_readback };
-       2'd2 : rb_data <= { 16'b0, radio_st, gpsdo_st, rb_misc };
-       2'd3 : rb_data <= { 30'h0, lock_state_r };
-       default : rb_data <= 64'd0;
+       2'd0 : rb_data = { 32'hACE0BA5E, COMPAT_MAJOR, COMPAT_MINOR };
+       2'd1 : rb_data = { 32'b0, spi_readback };
+       2'd2 : rb_data = { 16'b0, radio_st, gpsdo_st, rb_misc };
+       2'd3 : rb_data = { 30'h0, lock_state_r };
+       default : rb_data = 64'd0;
      endcase // case (rb_addr)
 
     /*******************************************************************

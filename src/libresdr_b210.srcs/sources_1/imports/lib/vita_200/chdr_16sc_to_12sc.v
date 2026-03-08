@@ -218,21 +218,22 @@ module chdr_16sc_to_12sc
   assign 	round_q1 = ({i_tdata[31],i_tdata[31:16]} + 'h0008);
   assign 	round_i1 = ({i_tdata[15],i_tdata[15:0]} + 'h0008);
   // Truncate with saturation to 12bits precision.
-  assign 	q1 = (round_q1[16:15] == 2'b01) ? 12'h3FF : ((round_q1[16:15] == 2'b10) ? 12'h800 : round_q1[15:4]);
-  assign	i1 = (round_i1[16:15] == 2'b01) ? 12'h3FF : ((round_i1[16:15] == 2'b10) ? 12'h800 : round_i1[15:4]);
+  assign 	q1 = (round_q1[16:15] == 2'b01) ? 12'h7FF : ((round_q1[16:15] == 2'b10) ? 12'h800 : round_q1[15:4]);
+  assign	i1 = (round_i1[16:15] == 2'b01) ? 12'h7FF : ((round_i1[16:15] == 2'b10) ? 12'h800 : round_i1[15:4]);
 
   //
   // Mux for current word
   //
   always @(*) 
     case(state)
-      HEADER:   curr_word <= {i_tdata[63:48], output_chdr_pkt_size, set_sid ?
+      HEADER:   curr_word = {i_tdata[63:48], output_chdr_pkt_size, set_sid ?
                             {i_tdata[15:0], new_sid_dst[15:0]}:i_tdata[31:0]};
-      TIME:     curr_word <= i_tdata;
-      SAMPLE1:  curr_word <= {q0,i0,q1, i1, 16'b0};
-      SAMPLE2:  curr_word <= {buff[63:16], q0, i0[11:8]};
-      SAMPLE3:  curr_word <= {buff[63:32], q0, i0,q1[11:4]};
-      SAMPLE4:  curr_word <= {buff[63:48], q0, i0, q1, i1};
+      TIME:     curr_word = i_tdata;
+      SAMPLE1:  curr_word = {q0,i0,q1, i1, 16'b0};
+      SAMPLE2:  curr_word = {buff[63:16], q0, i0[11:8]};
+      SAMPLE3:  curr_word = {buff[63:32], q0, i0,q1[11:4]};
+      SAMPLE4:  curr_word = {buff[63:48], q0, i0, q1, i1};
+      default:  curr_word = i_tdata;
     endcase
 
   assign  o_tdata   = buff_tvalid ? buff : curr_word;

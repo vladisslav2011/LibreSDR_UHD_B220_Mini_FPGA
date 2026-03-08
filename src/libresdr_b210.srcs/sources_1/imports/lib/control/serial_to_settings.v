@@ -109,6 +109,12 @@ module serial_to_settings
 		set_stb <= 1;
 	     end
 	  end
+
+	  default: begin
+	     state <= SEARCH;
+	     counter <= 0;
+	     set_stb <= 0;
+	  end
 	  
 	endcase // case(state)
      end // else: !if(reset)

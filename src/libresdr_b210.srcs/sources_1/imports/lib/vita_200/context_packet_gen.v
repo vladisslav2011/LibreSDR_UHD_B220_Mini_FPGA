@@ -46,10 +46,10 @@ module context_packet_gen
 
    always @*
      case(cp_state)
-       CP_HEAD : o_tdata <= { 4'hA, seqnum, 16'd24, sid };
-       CP_TIME : o_tdata <= vita_time;
-       CP_DATA : o_tdata <= body;
-       default : o_tdata <= body;
+       CP_HEAD : o_tdata = { 4'hA, seqnum, 16'd24, sid };
+       CP_TIME : o_tdata = vita_time;
+       CP_DATA : o_tdata = body;
+       default : o_tdata = body;
      endcase // case (cp_state)
 
    assign done = o_tlast & o_tvalid & o_tready;

@@ -154,21 +154,21 @@ module chdr_12sc_to_16sc
    always @(*)
      case(state)
 
-       HEADER: o_tdata <= {i_tdata[63:48],chdr_payload_lines,
+       HEADER: o_tdata = {i_tdata[63:48],chdr_payload_lines,
 			   set_sid ? {i_tdata[15:0], my_newhome[15:0]}:i_tdata[31:0]};
        
-       TIME: o_tdata <= i_tdata;
+       TIME: o_tdata = i_tdata;
        
-       ODD_LINE_ZERO: o_tdata <= {i_tdata[63:52], 4'h0, i_tdata[51:40], 4'h0, i_tdata[39:28],4'h0, i_tdata[27:16], 4'h0};
+       ODD_LINE_ZERO: o_tdata = {i_tdata[63:52], 4'h0, i_tdata[51:40], 4'h0, i_tdata[39:28],4'h0, i_tdata[27:16], 4'h0};
        
-       EVEN_LINE_ONE: o_tdata <= {hold_tdata[15:4],4'h0,hold_tdata[3:0],i_tdata[63:56],4'h0,i_tdata[55:44], 4'h0,i_tdata[43:32],4'h0};
+       EVEN_LINE_ONE: o_tdata = {hold_tdata[15:4],4'h0,hold_tdata[3:0],i_tdata[63:56],4'h0,i_tdata[55:44], 4'h0,i_tdata[43:32],4'h0};
        
-       ODD_LINE_TWO: o_tdata <= {hold_tdata[31:20], 4'h0, hold_tdata[19:8],4'h0, hold_tdata[7:0],i_tdata[63:60],4'h0,i_tdata[59:48],4'h0};
+       ODD_LINE_TWO: o_tdata = {hold_tdata[31:20], 4'h0, hold_tdata[19:8],4'h0, hold_tdata[7:0],i_tdata[63:60],4'h0,i_tdata[59:48],4'h0};
        
-       EVEN_LINE_THREE: o_tdata <= {hold_tdata[47:36],4'h0,hold_tdata[35:24],4'h0,hold_tdata[23:12],4'h0,hold_tdata[11:0],4'h0};
+       EVEN_LINE_THREE: o_tdata = {hold_tdata[47:36],4'h0,hold_tdata[35:24],4'h0,hold_tdata[23:12],4'h0,hold_tdata[11:0],4'h0};
        
 
-       default: o_tdata <= i_tdata;
+       default: o_tdata = i_tdata;
        
      endcase
    

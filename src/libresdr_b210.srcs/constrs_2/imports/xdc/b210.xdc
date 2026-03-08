@@ -196,6 +196,38 @@ set_property -dict {PACKAGE_PIN G22 IOSTANDARD LVCMOS33} [get_ports tx_enable2]
 
 set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
 
+###############################################################################
+# Clock definitions
+###############################################################################
+
+# External 10 MHz reference input — drives clk_wiz_0 MMCM
+create_clock -period 100.000 -name clk_10mhz [get_ports CLKIN_10MHz]
+
+###############################################################################
+# Asynchronous inputs — handled by synchronizers in RTL
+###############################################################################
+
+# PPS_IN_EXT is an asynchronous external pulse (1 Hz or absent).
+# It is double-synchronized into ref_pll_clk in libresdr_b210.v.
+set_false_path -from [get_ports PPS_IN_EXT]
+
+###############################################################################
+# Clock domain crossings
+###############################################################################
+
+# sync_200M (from 10 MHz MMCM) and ref_pll_clk (from 40 MHz MMCM) are
+# physically unrelated 200 MHz clocks. CDC is handled by synchronizers.
+set_clock_groups -asynchronous \
+    -group [get_clocks -of_objects [get_pins clk_wiz_0_10M_detect/inst/mmcm_adv_inst/CLKOUT0]] \
+    -group [get_clocks -of_objects [get_pins u_gen_clocks_main/inst/mmcm_adv_inst/CLKOUT2]]
+
+# Generic false path for all synchronizer_impl instances (standard UHD pattern)
+set_false_path -to [get_pins -hierarchical -filter {NAME =~ */synchronizer_false_path/stages[0].value_reg[0][*]/D}]
+
+###############################################################################
+# Existing cross-domain false paths
+###############################################################################
+
 set_false_path -from [get_clocks CAT_DCLK_P] -to [get_clocks -of_objects [get_pins u_gen_clocks_main/inst/mmcm_adv_inst/CLKOUT1]]
 set_false_path -from [get_clocks CAT_DCLK_P] -to [get_clocks -of_objects [get_pins u_libresdr_b210_io/BUFR_inst/O]]
 set_false_path -from [get_clocks -of_objects [get_pins u_gen_clocks_main/inst/mmcm_adv_inst/CLKOUT1]] -to [get_clocks CAT_DCLK_P]

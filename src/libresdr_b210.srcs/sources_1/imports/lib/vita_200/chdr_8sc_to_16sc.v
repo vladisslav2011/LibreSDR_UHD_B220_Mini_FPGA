@@ -95,11 +95,11 @@ module chdr_8sc_to_16sc
    
    always @(*) 
      case(state)
-	HEADER: o_tdata <= {i_tdata[63:48], chdr_payload_lines16,
+	HEADER: o_tdata = {i_tdata[63:48], chdr_payload_lines16,
 			  set_sid ? {i_tdata[15:0], my_newhome[15:0]}:i_tdata[31:0]};
-	TIME: o_tdata <= i_tdata;
-       ODD: o_tdata <= {i_tdata[63:56], 8'h0, i_tdata[55:48] , 8'h0, i_tdata[47:40], 8'h0, i_tdata[39:32] , 8'h0};
-       EVEN: o_tdata <= {i_tdata[31:24], 8'h0, i_tdata[23:16], 8'h0, i_tdata[15:8], 8'h0, i_tdata[7:0], 8'h0};
+	TIME: o_tdata = i_tdata;
+       ODD: o_tdata = {i_tdata[63:56], 8'h0, i_tdata[55:48] , 8'h0, i_tdata[47:40], 8'h0, i_tdata[39:32] , 8'h0};
+       EVEN: o_tdata = {i_tdata[31:24], 8'h0, i_tdata[23:16], 8'h0, i_tdata[15:8], 8'h0, i_tdata[7:0], 8'h0};
    
        
        default : o_tdata = i_tdata;

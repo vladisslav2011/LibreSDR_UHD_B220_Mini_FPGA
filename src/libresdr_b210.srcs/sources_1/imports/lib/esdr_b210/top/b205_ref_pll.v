@@ -77,8 +77,10 @@ module b205_ref_pll(
     end
 
     // flop signals into sample clock domain together
-    reg [3:0] refsmp;
-    reg [3:0] refclksmp;
+    // ASYNC_REG ensures Vivado places these flops in the same slice
+    // for proper metastability settling (CDC from async/refclk to clk)
+    (* ASYNC_REG = "TRUE" *) reg [3:0] refsmp;
+    (* ASYNC_REG = "TRUE" *) reg [3:0] refclksmp;
     always @(posedge clk) begin
         refsmp <= {refsmp[2:0],ref};
         refclksmp <= {refclksmp[2:0],refclk_div};

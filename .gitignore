@@ -1,32 +1,34 @@
-# Prerequisites
-*.d
+# Vivado generated / cached
+src/libresdr_b210.cache/
+src/libresdr_b210.gen/
+src/libresdr_b210.hw/
+src/libresdr_b210.runs/
+src/libresdr_b210.ip_user_files/
+*.jou
+*.log
+*.str
+.Xil/
 
-# Compiled Object files
-*.slo
-*.lo
+# Build output (on external volume)
+*.bit
+*.bin
+
+# OS
+.DS_Store
+
+# Baselines / local data
+baselines/
+
+# Compiled objects
 *.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
 *.so
 *.dylib
 *.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
 *.a
 *.lib
 
-# Executables
-*.exe
-*.out
-*.app
+# Large archives (Vivado installer, etc.)
+*.tar
+
+# Upstream reference (embedded git repo)
+uhd/

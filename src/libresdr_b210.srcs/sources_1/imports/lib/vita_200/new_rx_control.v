@@ -204,9 +204,9 @@ module new_rx_control
 
    always @*
      case(ibs_state)
-       IBS_IDLE    : command_ready <= stop | late | now | send_imm;
-       IBS_RUNNING : command_ready <= strobe & (lines_left == 1) & chain_sav;
-       default     : command_ready <= 1'b0;
+        IBS_IDLE    : command_ready = stop | late | now | send_imm;
+        IBS_RUNNING : command_ready = strobe & (lines_left == 1) & chain_sav;
+        default     : command_ready = 1'b0;
      endcase // case (ibs_state)
 
    assign run = (ibs_state == IBS_RUNNING);
@@ -214,23 +214,23 @@ module new_rx_control
 
    always @*
      case (ibs_state)
-       IBS_OVERRUN : err_tdata_int <= { 4'hA, seqnum, 16'd24, sid };
-       IBS_OVR_TIME : err_tdata_int <= vita_time;
-       IBS_OVR_DATA : err_tdata_int <= {32'h8, 32'b0};
+        IBS_OVERRUN : err_tdata_int = { 4'hA, seqnum, 16'd24, sid };
+        IBS_OVR_TIME : err_tdata_int = vita_time;
+        IBS_OVR_DATA : err_tdata_int = {32'h8, 32'b0};
 
-       IBS_BROKENCHAIN : err_tdata_int <= { 4'hA, seqnum, 16'd24, sid };
-       IBS_BRK_TIME : err_tdata_int <= vita_time;
-       IBS_BRK_DATA : err_tdata_int <= {32'h4, 32'b0};
+        IBS_BROKENCHAIN : err_tdata_int = { 4'hA, seqnum, 16'd24, sid };
+        IBS_BRK_TIME : err_tdata_int = vita_time;
+        IBS_BRK_DATA : err_tdata_int = {32'h4, 32'b0};
 
-       IBS_LATECMD : err_tdata_int <= { 4'hA, seqnum, 16'd24, sid };
-       IBS_LATE_TIME : err_tdata_int <= vita_time;
-       IBS_LATE_DATA : err_tdata_int <= {32'h2, 32'b0};
+        IBS_LATECMD : err_tdata_int = { 4'hA, seqnum, 16'd24, sid };
+        IBS_LATE_TIME : err_tdata_int = vita_time;
+        IBS_LATE_DATA : err_tdata_int = {32'h2, 32'b0};
 
-       IBS_ZEROLEN : err_tdata_int <= { 4'hA, seqnum, 16'd24, sid };
-       IBS_ZERO_TIME : err_tdata_int <= vita_time;
-       IBS_ZERO_DATA : err_tdata_int <= {32'hd, 32'b0};
+        IBS_ZEROLEN : err_tdata_int = { 4'hA, seqnum, 16'd24, sid };
+        IBS_ZERO_TIME : err_tdata_int = vita_time;
+        IBS_ZERO_DATA : err_tdata_int = {32'hd, 32'b0};
 
-       default : err_tdata_int <= {32'he, 32'b0};
+        default : err_tdata_int = {32'he, 32'b0};
      endcase // case (ibs_state)
    
    assign err_tlast_int = (ibs_state == IBS_OVR_DATA) 

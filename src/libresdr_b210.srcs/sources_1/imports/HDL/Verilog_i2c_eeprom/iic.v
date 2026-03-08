@@ -174,6 +174,9 @@ begin
 					state <= 5'd0;
 				end
 			end
+			default: begin
+				state <= 5'd0;
+			end
 		endcase
 	end
 	else if(rd_sig)begin		//iic数据读
@@ -382,6 +385,9 @@ begin
 				else begin
 					cnt <= cnt + 9'd1;
 				end
+			end
+			default: begin
+				state <= 5'd0;
 			end
 		endcase
 	end
