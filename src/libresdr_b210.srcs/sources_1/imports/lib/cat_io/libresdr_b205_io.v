@@ -43,7 +43,7 @@ module libresdr_b205_io (
   wire rx_clk_bufr; // Capture clock
   wire rx_clk_mimo_bufr;
   
-  BUFR bufr_rx_clk (.I(rx_clk), .O(rx_clk_bufr));
+  BUFR bufr_rx_clk (.I(rx_clk), .O(rx_clk_bufr), .CE(1'b1), .CLR(1'b0));
   
   BUFR #(
    .BUFR_DIVIDE("2"),   // Values: "BYPASS, 1, 2, 3, 4, 5, 6, 7, 8"
