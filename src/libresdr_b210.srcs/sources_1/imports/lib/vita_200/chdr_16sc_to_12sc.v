@@ -25,9 +25,7 @@ module chdr_16sc_to_12sc
     output [63:0]       o_tdata,
     output              o_tlast,
     output              o_tvalid,
-    input               o_tready,
-    // Debug
-    output [31:0]       debug
+    input               o_tready
   );
 
   wire 		chdr_has_time = i_tdata[61];
@@ -84,6 +82,7 @@ module chdr_16sc_to_12sc
       buff <= 64'd0;
       buff_tvalid <= 1'd0;
       buff_tlast <= 1'd0;
+      odd <= 1'd0;
     end else begin
       case(state)
 

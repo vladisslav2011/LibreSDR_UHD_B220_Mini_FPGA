@@ -16,7 +16,7 @@ module duc_chain
     parameter NEW_HB_INTERP = 0,
     parameter DEVICE = "7SERIES"
   )
-  (input clk, input rst, input clr,
+  (input clk, input rst,
    input set_stb, input [7:0] set_addr, input [31:0] set_data,
 
    // To TX frontend
@@ -193,7 +193,7 @@ module duc_chain
    // Thus the CORDIC will overflow when rotating and an input CW with (clipped) effective amplitude of 1.22 is applied.
    //
    cordic_z24 #(.bitwidth(cwidth))
-     cordic(.clock(clk), .reset(rst), .enable(run),
+     cordic(.clock(clk), .reset(rst),
 	    .xi({i_interp,{(cwidth-18){1'b0}}}),.yi({q_interp,{(cwidth-18){1'b0}}}),
 	    .zi(phase[31:32-zwidth]),
 	    .xo(da_c),.yo(db_c),.zo() );
@@ -226,9 +226,9 @@ module duc_chain
    // Cordic rotation coupled with a saturated input signal can cause overflow
    // so we clip here rather than allow a wrap.
    clip_reg #(.bits_in(36), .bits_out(33), .STROBED(1)) clip_i
-     (.clk(clk), .in(prod_i[35:0]), .strobe_in(1'b1), .out(i_clip), .strobe_out());
+     (.clk(clk), .reset(1'b0), .in(prod_i[35:0]), .strobe_in(1'b1), .out(i_clip), .strobe_out());
    clip_reg #(.bits_in(36), .bits_out(33), .STROBED(1)) clip_q
-     (.clk(clk), .in(prod_q[35:0]), .strobe_in(1'b1), .out(q_clip), .strobe_out());
+     (.clk(clk), .reset(1'b0), .in(prod_q[35:0]), .strobe_in(1'b1), .out(q_clip), .strobe_out());
 
    assign tx_fe_i = i_clip[32:33-WIDTH];
    assign tx_fe_q = q_clip[32:33-WIDTH];

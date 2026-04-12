@@ -135,6 +135,8 @@ module cvita_uart
         if (rst) begin
             txd_state <= TXD_STATE_RECV_CHDR;
             rxd_enable <= 1'b0;
+            clkdiv <= 16'hffff;
+            sid <= 32'd0;
         end
         else if (i_tvalid && i_tready) case (txd_state)
 

@@ -77,7 +77,7 @@ module new_tx_control
      (.clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr),
       .in(set_data),.out({policy_next_burst,policy_next_packet,policy_wait}),.changed(clear_seqnum_int));
 
-   time_compare time_compare (.clk(clk), .reset(reset), .time_now(vita_time), .trigger_time(send_time),
+   time_compare time_compare (.time_now(vita_time), .trigger_time(send_time),
                    .now(now), .early(early), .late(late), .too_early(too_early));
 
    assign run = (state == ST_SAMP0) | (state == ST_SAMP1);

@@ -20,7 +20,7 @@
 // Note -- if t0 is the requested time, the actual send time on the setting bus is t0 + 1 cycle.
 
 module radio_ctrl_proc
-  (input clk, input reset, input clear,
+  (input clk, input reset,
    
    //====================================================
    //to slave fifo
@@ -129,7 +129,7 @@ module radio_ctrl_proc
   
     //用于比较时间，判断输入的数据和当前的预期的时间的早晚关系
    time_compare time_compare
-     (.clk(clk), .reset(reset), .time_now(vita_time), .trigger_time(ctrl_tdata), .now(now), .early(), .late(late), .too_early());
+     (.time_now(vita_time), .trigger_time(ctrl_tdata), .now(now), .early(), .late(late), .too_early());
 
    assign go = now | late;
    

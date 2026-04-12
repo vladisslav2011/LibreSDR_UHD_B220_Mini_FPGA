@@ -23,9 +23,7 @@ module chdr_xxxx_to_16sc_chain
     output [63:0] o_tdata,
     output 	  o_tlast,
     output 	  o_tvalid,
-    input 	  o_tready,
-
-    output [31:0] debug
+    input 	  o_tready
     );
 
    //------------------------------------------------------------------

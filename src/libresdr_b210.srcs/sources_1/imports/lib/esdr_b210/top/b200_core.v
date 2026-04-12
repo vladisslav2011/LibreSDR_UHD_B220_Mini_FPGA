@@ -70,12 +70,8 @@ module b200_core
     ////////////////////////////////////////////////////////////////////
     // fe lock signals
     ////////////////////////////////////////////////////////////////////
-    input [1:0] lock_signals,
+    input [1:0] lock_signals
 
-    ////////////////////////////////////////////////////////////////////
-    // debug signals
-    ////////////////////////////////////////////////////////////////////
-    output [63:0] debug
 );
     localparam SR_CORE_SPI       = 8'd8;
     localparam SR_CORE_MISC      = 8'd16;
@@ -206,7 +202,7 @@ module b200_core
     );
 
     radio_ctrl_proc radio_ctrl_proc
-     (.clk(bus_clk), .reset(bus_rst), .clear(1'b0),
+     (.clk(bus_clk), .reset(bus_rst),
       .ctrl_tdata(l0i_ctrl_tdata), .ctrl_tlast(l0i_ctrl_tlast), .ctrl_tvalid(l0i_ctrl_tvalid), .ctrl_tready(l0i_ctrl_tready),
       .resp_tdata(l0_resp_tdata), .resp_tlast(l0_resp_tlast), .resp_tvalid(l0_resp_tvalid), .resp_tready(l0_resp_tready),
       .vita_time(64'b0),

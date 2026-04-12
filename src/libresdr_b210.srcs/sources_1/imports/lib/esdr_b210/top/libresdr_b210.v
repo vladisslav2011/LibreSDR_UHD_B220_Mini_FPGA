@@ -462,7 +462,7 @@ b205_ref_pll(
         .tx0(tx_data0), .tx1(tx_data1),
         .fe0_gpio_out(radio0_gpio), .fe1_gpio_out(radio1_gpio),
         .fp_gpio_in(fp_gpio_in), .fp_gpio_out(fp_gpio_out), .fp_gpio_ddr(fp_gpio_ddr),
-        .rxd( ), .txd( ),
+        .rxd(1'b1), .txd( ),
 
         .pps_ref(lpps),
         .pps_fpga_int(pps_fpga_int),
@@ -478,8 +478,7 @@ b205_ref_pll(
     `else
             .debug_txd(), .debug_rxd(1'b0),
     `endif
-        .lock_signals(CAT_CTL_OUT[7:6]),
-        .debug()
+        .lock_signals(CAT_CTL_OUT[7:6])
     );
     
     `ifdef TARGET_B210
@@ -516,7 +515,7 @@ b205_ref_pll(
    gpif2_slave_fifo32 #(.DATA_RX_FIFO_SIZE(14), .DATA_TX_FIFO_SIZE(14)) slave_fifo32
    (
        .gpif_clk(gpif_clk), .gpif_rst(gpif_rst), .gpif_enb(1'b1),
-       .gpif_ctl({GPIF_CTL8, GPIF_CTL6, GPIF_CTL5, GPIF_CTL4}), .fifoadr({GPIF_CTL11,GPIF_CTL12}),
+       .gpif_ctl({GPIF_CTL5, GPIF_CTL4}), .fifoadr({GPIF_CTL11,GPIF_CTL12}),
        .slwr(GPIF_CTL1), .sloe(GPIF_CTL2), .slcs(GPIF_CTL0), .slrd(GPIF_CTL3), .pktend(GPIF_CTL7),
        .gpif_d(GPIF_D),
 
@@ -524,9 +523,7 @@ b205_ref_pll(
        .tx_tdata(tx_tdata), .tx_tlast(tx_tlast), .tx_tvalid(tx_tvalid), .tx_tready(tx_tready),
        .rx_tdata(rx_tdata), .rx_tlast(rx_tlast),  .rx_tvalid(rx_tvalid), .rx_tready(rx_tready),
        .ctrl_tdata(ctrl_tdata), .ctrl_tlast(ctrl_tlast),  .ctrl_tvalid(ctrl_tvalid), .ctrl_tready(ctrl_tready),
-       .resp_tdata(resp_tdata), .resp_tlast(resp_tlast),  .resp_tvalid(resp_tvalid), .resp_tready(resp_tready),
-
-       .debug()
+       .resp_tdata(resp_tdata), .resp_tlast(resp_tlast),  .resp_tvalid(resp_tvalid), .resp_tready(resp_tready)
    );
 
     ODDR #(

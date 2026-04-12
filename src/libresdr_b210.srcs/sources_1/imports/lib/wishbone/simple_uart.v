@@ -11,7 +11,7 @@ module simple_uart
   #(parameter CLKDIV_DEFAULT = 16'd0, parameter RX_SIZE=8, parameter TX_SIZE=0)
    (input clk_i, input rst_i,
     input we_i, input stb_i, input cyc_i, output reg ack_o,
-    input [2:0] adr_i, input [31:0] dat_i, output reg [31:0] dat_o,
+    input [2:0] adr_i, input [15:0] dat_i, output reg [31:0] dat_o,
     output rx_int_o, output tx_int_o, output tx_o, input rx_i, output baud_o);
 
    // Register Map

@@ -157,6 +157,10 @@ module simple_spi_core
             sclk_reg <= CLK_IDLE;
             ready_reg <= 0;
             readback_stb <= 1'b0;
+            bit_counter <= 0;
+            datain_reg <= 0;
+            dataout_reg <= 0;
+            sclk_counter <= 0;
         end
         else begin
             case (state)

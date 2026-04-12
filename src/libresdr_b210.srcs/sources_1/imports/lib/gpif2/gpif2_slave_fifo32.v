@@ -30,7 +30,7 @@ module gpif2_slave_fifo32
     input gpif_rst,
     input gpif_enb,
     inout [31:0] gpif_d,
-    input [3:0] gpif_ctl,
+    input [1:0] gpif_ctl,
     output reg sloe,
     output reg slrd,
     output reg slwr,
@@ -47,9 +47,7 @@ module gpif2_slave_fifo32
     // Incomming control interface
     output [63:0] ctrl_tdata, output ctrl_tlast, output ctrl_tvalid, input ctrl_tready,
     // Outgoing control interface
-    input [63:0] resp_tdata, input resp_tlast, input resp_tvalid, output resp_tready,
-    // Debug Signals
-    output [31:0] debug
+    input [63:0] resp_tdata, input resp_tlast, input resp_tvalid, output resp_tready
     );
 
    reg 		  fifo_nearly_full;

@@ -86,7 +86,7 @@ module new_rx_control
       .occupied(), .space() );
 
    time_compare 
-     time_compare (.clk(clk), .reset(reset), .time_now(vita_time), .trigger_time(rcvtime), 
+     time_compare (.time_now(vita_time), .trigger_time(rcvtime), 
 		   .now(now), .early(early), .late(late), .too_early());
 
    localparam IBS_IDLE         = 0;

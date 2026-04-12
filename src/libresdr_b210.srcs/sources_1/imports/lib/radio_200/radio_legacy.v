@@ -163,7 +163,7 @@ module radio_legacy
 
    wire [31:0] debug_radio_ctrl_proc;
    radio_ctrl_proc radio_ctrl_proc
-     (.clk(radio_clk), .reset(radio_rst), .clear(1'b0),
+     (.clk(radio_clk), .reset(radio_rst),
       .ctrl_tdata(ctrl_tdata_proc), .ctrl_tlast(ctrl_tlast_proc), .ctrl_tvalid(ctrl_tvalid_proc), .ctrl_tready(ctrl_tready_proc),
       .resp_tdata(resp_tdata_r), .resp_tlast(resp_tlast_r), .resp_tvalid(resp_tvalid_r), .resp_tready(resp_tready_r),
       .vita_time(vita_time),
@@ -290,7 +290,11 @@ endgenerate
             .gpio_in(fp_gpio_in), .gpio_out(fp_gpio_out), .gpio_ddr(fp_gpio_ddr), 
             .gpio_out_fab(10'h000 /* no fabric control */), .gpio_sw_rb(fp_gpio_readback));
       end
-      else assign fp_gpio_readback = 10'h0;
+      else begin 
+         assign fp_gpio_readback = 10'h0;
+         assign fp_gpio_ddr = 32'd0;
+         assign fp_gpio_out = 32'd0;
+      end;
       
    endgenerate
 
@@ -400,7 +404,7 @@ endgenerate
 
    wire [31:0]       debug_duc_chain;
    duc_chain #(.BASE(SR_TX_DSP), .DSPNO(0), .WIDTH(24), .NEW_HB_INTERP(NEW_HB_INTERP),.DEVICE(DEVICE)) duc_chain
-     (.clk(radio_clk), .rst(radio_rst), .clr(1'b0),
+     (.clk(radio_clk), .rst(radio_rst),
       .set_stb(set_stb),.set_addr(set_addr),.set_data(set_data),
       .tx_fe_i(tx_fe_i),.tx_fe_q(tx_fe_q),
       .sample(sample_tx), .run(run_tx), .strobe(strobe_tx),
@@ -418,8 +422,8 @@ endgenerate
      (.clk(radio_clk), .reset(radio_rst),
       .set_stb(set_stb),.set_addr(set_addr),.set_data(set_data),
       .i_tdata(tx_tdata_r), .i_tlast(tx_tlast_r), .i_tvalid(tx_tvalid_r), .i_tready(tx_tready_r),
-      .o_tdata(tx_tdata_i), .o_tlast(tx_tlast_i), .o_tvalid(tx_tvalid_i), .o_tready(tx_tready_i),
-      .debug());
+      .o_tdata(tx_tdata_i), .o_tlast(tx_tlast_i), .o_tvalid(tx_tvalid_i), .o_tready(tx_tready_i)
+      );
 `endif // !`ifdef DELETE_FORMAT_CONVERSION
 
    // /////////////////////////////////////////////////////////////////////////////////
@@ -461,7 +465,7 @@ endgenerate
    wire [31:0] 	     rx_fe = loopback ? tx : rx;
 
    ddc_chain #(.BASE(SR_RX_DSP), .DSPNO(0), .WIDTH(24), .NEW_HB_DECIM(NEW_HB_DECIM), .DEVICE(DEVICE)) ddc_chain
-     (.clk(radio_clk), .rst(radio_rst), .clr(1'b0),
+     (.clk(radio_clk), .rst(radio_rst),
       .set_stb(set_stb),.set_addr(set_addr),.set_data(set_data),
       .rx_fe_i({rx_fe[31:16],8'd0}),.rx_fe_q({rx_fe[15:0],8'd0}),
       .sample(sample_rx), .run(run_rx), .strobe(strobe_rx),
@@ -477,8 +481,8 @@ endgenerate
      (.clk(radio_clk), .reset(radio_rst),
       .set_stb(set_stb),.set_addr(set_addr),.set_data(set_data),
       .i_tdata(rx_tdata_i), .i_tlast(rx_tlast_i), .i_tvalid(rx_tvalid_i), .i_tready(rx_tready_i),
-      .o_tdata(rx_prefc_tdata_r), .o_tlast(rx_prefc_tlast_r), .o_tvalid(rx_prefc_tvalid_r), .o_tready(rx_prefc_tready_r),
-      .debug());
+      .o_tdata(rx_prefc_tdata_r), .o_tlast(rx_prefc_tlast_r), .o_tvalid(rx_prefc_tvalid_r), .o_tready(rx_prefc_tready_r)
+      );
 `endif
    // /////////////////////////////////////////////////////////////////////////////////
    //  RX Channel Muxing
@@ -532,6 +536,6 @@ endgenerate
    /*******************************************************************
     * Debug only logic below here.
     ******************************************************************/
- assign debug = 0;
+ assign debug = 64'd0;
 
 endmodule // radio_legacy

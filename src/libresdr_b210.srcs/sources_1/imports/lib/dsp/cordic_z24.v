@@ -9,14 +9,13 @@
 
 //
 
-module cordic_z24(clock, reset, enable, xi, yi, zi, xo, yo, zo );
+module cordic_z24(clock, reset, xi, yi, zi, xo, yo, zo );
    parameter bitwidth = 16;
    parameter stages = 19;
    localparam zwidth = 24;
    
    input clock;
    input reset;
-   input enable;
    input [bitwidth-1:0] xi, yi;
    output [bitwidth-1:0] xo, yo;
    input [zwidth-1:0] zi;
@@ -65,7 +64,7 @@ module cordic_z24(clock, reset, enable, xi, yi, zi, xo, yo, zo );
        begin
 	  x0   <= 0; y0   <= 0;  z0   <= 0;
        end
-     else// if(enable)
+     else
        begin
 	  z0 <= zi[zwidth-2:0];
 	  case (zi[zwidth-1:zwidth-2])
@@ -85,26 +84,26 @@ module cordic_z24(clock, reset, enable, xi, yi, zi, xo, yo, zo );
    // FIXME need to handle variable number of stages
    // This would be easier if arrays worked better in vlog...
    
-   cordic_stage #(bitwidth+2,zwidth-1,0) cordic_stage0 (clock,reset,enable,x0,y0,z0,c00,x1,y1,z1);
-   cordic_stage #(bitwidth+2,zwidth-1,1) cordic_stage1 (clock,reset,enable,x1,y1,z1,c01,x2,y2,z2);
-   cordic_stage #(bitwidth+2,zwidth-1,2) cordic_stage2 (clock,reset,enable,x2,y2,z2,c02,x3,y3,z3);
-   cordic_stage #(bitwidth+2,zwidth-1,3) cordic_stage3 (clock,reset,enable,x3,y3,z3,c03,x4,y4,z4);
-   cordic_stage #(bitwidth+2,zwidth-1,4) cordic_stage4 (clock,reset,enable,x4,y4,z4,c04,x5,y5,z5);
-   cordic_stage #(bitwidth+2,zwidth-1,5) cordic_stage5 (clock,reset,enable,x5,y5,z5,c05,x6,y6,z6);
-   cordic_stage #(bitwidth+2,zwidth-1,6) cordic_stage6 (clock,reset,enable,x6,y6,z6,c06,x7,y7,z7);
-   cordic_stage #(bitwidth+2,zwidth-1,7) cordic_stage7 (clock,reset,enable,x7,y7,z7,c07,x8,y8,z8);
-   cordic_stage #(bitwidth+2,zwidth-1,8) cordic_stage8 (clock,reset,enable,x8,y8,z8,c08,x9,y9,z9);
-   cordic_stage #(bitwidth+2,zwidth-1,9) cordic_stage9 (clock,reset,enable,x9,y9,z9,c09,x10,y10,z10);
-   cordic_stage #(bitwidth+2,zwidth-1,10) cordic_stage10 (clock,reset,enable,x10,y10,z10,c10,x11,y11,z11);
-   cordic_stage #(bitwidth+2,zwidth-1,11) cordic_stage11 (clock,reset,enable,x11,y11,z11,c11,x12,y12,z12);
-   cordic_stage #(bitwidth+2,zwidth-1,12) cordic_stage12 (clock,reset,enable,x12,y12,z12,c12,x13,y13,z13);
-   cordic_stage #(bitwidth+2,zwidth-1,13) cordic_stage13 (clock,reset,enable,x13,y13,z13,c13,x14,y14,z14);
-   cordic_stage #(bitwidth+2,zwidth-1,14) cordic_stage14 (clock,reset,enable,x14,y14,z14,c14,x15,y15,z15);
-   cordic_stage #(bitwidth+2,zwidth-1,15) cordic_stage15 (clock,reset,enable,x15,y15,z15,c15,x16,y16,z16);
-   cordic_stage #(bitwidth+2,zwidth-1,16) cordic_stage16 (clock,reset,enable,x16,y16,z16,c16,x17,y17,z17);
-   cordic_stage #(bitwidth+2,zwidth-1,17) cordic_stage17 (clock,reset,enable,x17,y17,z17,c17,x18,y18,z18);
-   cordic_stage #(bitwidth+2,zwidth-1,18) cordic_stage18 (clock,reset,enable,x18,y18,z18,c18,x19,y19,z19);
-   cordic_stage #(bitwidth+2,zwidth-1,19) cordic_stage19 (clock,reset,enable,x19,y19,z19,c19,x20,y20,z20);
+   cordic_stage #(bitwidth+2,zwidth-1,0) cordic_stage0 (clock,reset,x0,y0,z0,c00,x1,y1,z1);
+   cordic_stage #(bitwidth+2,zwidth-1,1) cordic_stage1 (clock,reset,x1,y1,z1,c01,x2,y2,z2);
+   cordic_stage #(bitwidth+2,zwidth-1,2) cordic_stage2 (clock,reset,x2,y2,z2,c02,x3,y3,z3);
+   cordic_stage #(bitwidth+2,zwidth-1,3) cordic_stage3 (clock,reset,x3,y3,z3,c03,x4,y4,z4);
+   cordic_stage #(bitwidth+2,zwidth-1,4) cordic_stage4 (clock,reset,x4,y4,z4,c04,x5,y5,z5);
+   cordic_stage #(bitwidth+2,zwidth-1,5) cordic_stage5 (clock,reset,x5,y5,z5,c05,x6,y6,z6);
+   cordic_stage #(bitwidth+2,zwidth-1,6) cordic_stage6 (clock,reset,x6,y6,z6,c06,x7,y7,z7);
+   cordic_stage #(bitwidth+2,zwidth-1,7) cordic_stage7 (clock,reset,x7,y7,z7,c07,x8,y8,z8);
+   cordic_stage #(bitwidth+2,zwidth-1,8) cordic_stage8 (clock,reset,x8,y8,z8,c08,x9,y9,z9);
+   cordic_stage #(bitwidth+2,zwidth-1,9) cordic_stage9 (clock,reset,x9,y9,z9,c09,x10,y10,z10);
+   cordic_stage #(bitwidth+2,zwidth-1,10) cordic_stage10 (clock,reset,x10,y10,z10,c10,x11,y11,z11);
+   cordic_stage #(bitwidth+2,zwidth-1,11) cordic_stage11 (clock,reset,x11,y11,z11,c11,x12,y12,z12);
+   cordic_stage #(bitwidth+2,zwidth-1,12) cordic_stage12 (clock,reset,x12,y12,z12,c12,x13,y13,z13);
+   cordic_stage #(bitwidth+2,zwidth-1,13) cordic_stage13 (clock,reset,x13,y13,z13,c13,x14,y14,z14);
+   cordic_stage #(bitwidth+2,zwidth-1,14) cordic_stage14 (clock,reset,x14,y14,z14,c14,x15,y15,z15);
+   cordic_stage #(bitwidth+2,zwidth-1,15) cordic_stage15 (clock,reset,x15,y15,z15,c15,x16,y16,z16);
+   cordic_stage #(bitwidth+2,zwidth-1,16) cordic_stage16 (clock,reset,x16,y16,z16,c16,x17,y17,z17);
+   cordic_stage #(bitwidth+2,zwidth-1,17) cordic_stage17 (clock,reset,x17,y17,z17,c17,x18,y18,z18);
+   cordic_stage #(bitwidth+2,zwidth-1,18) cordic_stage18 (clock,reset,x18,y18,z18,c18,x19,y19,z19);
+   cordic_stage #(bitwidth+2,zwidth-1,19) cordic_stage19 (clock,reset,x19,y19,z19,c19,x20,y20,z20);
 
    assign xo = x20[bitwidth:1];  
    assign yo = y20[bitwidth:1];

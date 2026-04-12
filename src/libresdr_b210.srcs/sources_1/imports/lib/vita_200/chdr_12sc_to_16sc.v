@@ -23,9 +23,7 @@ module chdr_12sc_to_16sc
      output reg [63:0] o_tdata,
      output 	       o_tlast,
      output 	       o_tvalid,
-     input 	       o_tready,
-
-     output [31:0]     debug
+     input 	       o_tready
      );
    
 
@@ -41,7 +39,15 @@ module chdr_12sc_to_16sc
 
    //calculating output length based on input ( 4/3*input = output)
 
-   wire [30:0] 	       calc_output_len = ({just_samples_in,14'h0} + {just_samples_in,12'h0} + {just_samples_in,10'h0} + {just_samples_in,8'h0} + {just_samples_in,6'h0} + {just_samples_in,4'h0} + {just_samples_in,2'h0}+{just_samples_in} +'b0001000000000000)<<2;
+   wire [28:0] 	       calc_output_len_0 = {just_samples_in,14'h0} + {just_samples_in,12'h0};
+   wire [28:0] 	       calc_output_len_1 = {just_samples_in,10'h0} + {just_samples_in,8'h0};
+   wire [28:0] 	       calc_output_len_2 = {just_samples_in,6'h0} + {just_samples_in,4'h0};
+   wire [28:0] 	       calc_output_len_3 = {just_samples_in,2'h0} + {just_samples_in};
+   wire [28:0] 	       calc_output_len_01 = calc_output_len_0 + calc_output_len_1;
+   wire [28:0] 	       calc_output_len_23 = calc_output_len_2 + calc_output_len_2;
+   wire [28:0] 	       calc_output_len_0123 = calc_output_len_01 + calc_output_len_23;
+   wire [28:0] 	       calc_output_len_tmp = calc_output_len_0123 +'b0001000000000000;
+   wire [30:0] 	       calc_output_len = calc_output_len_tmp<<2;
 
    wire [15:0] 	       samples = calc_output_len[30:16];
    wire [15:0] 	       chdr_payload_lines = samples + chdr_header_lines;
@@ -74,7 +80,9 @@ module chdr_12sc_to_16sc
    always @(posedge clk) begin
       
       if (reset) begin
-         state <= HEADER;	 
+         state <= HEADER;
+         has_exline <= 1'b0;	 
+         in_exline <= 1'b0;	 
       end
       
       else if (o_tvalid && o_tready) case(state)

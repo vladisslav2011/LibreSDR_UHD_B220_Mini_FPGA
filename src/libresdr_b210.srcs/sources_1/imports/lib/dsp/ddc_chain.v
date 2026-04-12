@@ -16,7 +16,7 @@ module ddc_chain
     parameter NEW_HB_DECIM = 0,
     parameter DEVICE = "SPARTAN6"
   )
-  (input clk, input rst, input clr,
+  (input clk, input rst,
    input 	     set_stb, input [7:0] set_addr, input [31:0] set_data,
 
    // From RX frontend
@@ -103,7 +103,7 @@ module ddc_chain
    sign_extend #(.bits_in(WIDTH), .bits_out(cwidth)) sign_extend_cordic_q (.in(rx_fe_q_mux), .out(to_cordic_q));
 
    cordic_z24 #(.bitwidth(cwidth))
-   cordic(.clock(clk), .reset(rst), .enable(run),
+   cordic(.clock(clk), .reset(rst),
 	  .xi(to_cordic_i),. yi(to_cordic_q), .zi(phase[31:32-zwidth]),
 	  .xo(i_cordic),.yo(q_cordic),.zo() );
 
@@ -242,9 +242,9 @@ module ddc_chain
 	 wire [17:0] i_unscaled_clip, q_unscaled_clip;
 
 	 clip_reg #(.bits_in(19), .bits_out(18), .STROBED(1)) unscaled_clip_i
-	   (.clk(clk), .in(i_unscaled[18:0]), .strobe_in(strobe_unscaled), .out(i_unscaled_clip[17:0]), .strobe_out(strobe_unscaled_clip));
+	   (.clk(clk), .reset(1'b0), .in(i_unscaled[18:0]), .strobe_in(strobe_unscaled), .out(i_unscaled_clip[17:0]), .strobe_out(strobe_unscaled_clip));
 	 clip_reg #(.bits_in(19), .bits_out(18), .STROBED(1)) unscaled_clip_q
-	   (.clk(clk), .in(q_unscaled[18:0]), .strobe_in(strobe_unscaled), .out(q_unscaled_clip[17:0]), .strobe_out());
+	   (.clk(clk), .reset(1'b0), .in(q_unscaled[18:0]), .strobe_in(strobe_unscaled), .out(q_unscaled_clip[17:0]), .strobe_out());
 
 	 // Apply scaling gain to compensate for CORDIC and CIC gain adjustments so that signal swing over network transport has
 	 // optimal dynamic range.
@@ -279,9 +279,9 @@ module ddc_chain
 	 always @(posedge clk)  strobe_scaled <= strobe_unscaled_clip;
 
 	 clip_reg #(.bits_in(36), .bits_out(33), .STROBED(1)) clip_i
-	   (.clk(clk), .in(prod_i[35:0]), .strobe_in(strobe_scaled), .out(i_clip), .strobe_out(strobe_clip));
+	   (.clk(clk), .reset(1'b0), .in(prod_i[35:0]), .strobe_in(strobe_scaled), .out(i_clip), .strobe_out(strobe_clip));
 	 clip_reg #(.bits_in(36), .bits_out(33), .STROBED(1)) clip_q
-	   (.clk(clk), .in(prod_q[35:0]), .strobe_in(strobe_scaled), .out(q_clip), .strobe_out());
+	   (.clk(clk), .reset(1'b0), .in(prod_q[35:0]), .strobe_in(strobe_scaled), .out(q_clip), .strobe_out());
 
 	 round_sd #(.WIDTH_IN(33), .WIDTH_OUT(16)) round_i
 	   (.clk(clk), .reset(rst), .in(i_clip), .strobe_in(strobe_clip), .out(sample[31:16]), .strobe_out(strobe));

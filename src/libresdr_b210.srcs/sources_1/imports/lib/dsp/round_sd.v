@@ -63,6 +63,7 @@ module round_sd #(
   always @(posedge clk) begin
     if (reset) begin
       strobe_out <= 1'b0;
+      out <= 0;
     end else begin
       strobe_out <= strobe_pre;
       if (strobe_pre) begin

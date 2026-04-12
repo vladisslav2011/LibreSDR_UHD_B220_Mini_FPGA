@@ -9,14 +9,13 @@
 
 //
 
-module cordic_stage( clock, reset, enable, xi,yi,zi,constant,xo,yo,zo);
+module cordic_stage( clock, reset, xi,yi,zi,constant,xo,yo,zo);
    parameter bitwidth = 16;
    parameter zwidth = 16;
    parameter shift = 1;
    
    input     clock;
    input     reset;
-   input     enable;
    input [bitwidth-1:0] xi,yi;
    input [zwidth-1:0] zi;
    input [zwidth-1:0] constant;
@@ -35,7 +34,7 @@ module cordic_stage( clock, reset, enable, xi,yi,zi,constant,xo,yo,zo);
 	  yo <= 0;
 	  zo <= 0;
        end
-     else //if(enable)
+     else
        begin
 	  xo <= z_is_pos ?   
 		xi - {{shift+1{yi[bitwidth-1]}},yi[bitwidth-2:shift]} :

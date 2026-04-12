@@ -18,9 +18,7 @@ module chdr_16sc_to_8sc
     output reg [63:0] o_tdata,
     output o_tlast,
     output o_tvalid,
-    input o_tready,
-
-    output [31:0] debug
+    input o_tready
     );
    
    //pipeline register
