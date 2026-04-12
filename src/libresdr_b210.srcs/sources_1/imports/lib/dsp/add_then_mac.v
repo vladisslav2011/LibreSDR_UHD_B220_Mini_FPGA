@@ -115,7 +115,7 @@ module add_then_mac
 	"SPARTAN6" :
 	  begin
 	     // DSP48A1 has 18b+18b=18b pre-adder, must discard LSB of A and D and compensate by shifting ACC.
-	     wire discard;;
+	     wire discard;
 	     assign acc[0] = 1'b0;
 	     
 	     DSP48A1 #(
