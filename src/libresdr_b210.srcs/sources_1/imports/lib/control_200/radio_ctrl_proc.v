@@ -150,6 +150,7 @@ module radio_ctrl_proc
      endcase // case (rc_state)
    
    assign resp_tvalid = (rc_state == RC_RESP_HEAD) | (rc_state == RC_RESP_TIME) | (rc_state == RC_RESP_DATA);
+   assign debug = 32'h0;
    
 endmodule // radio_ctrl_proc
 

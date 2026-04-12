@@ -39,14 +39,9 @@ module float_to_iq
    wire [23:0] 		   implied_bit_fraction;
    wire [24:0] 		   operation_round;
    wire [15:0] 		   round_fraction;
-   wire [15:0] 		   shifted_fraction;
    wire [7:0] 		   shift_val;
 
-   wire [22:0] 		   true_frac;
-   
 
-   
-   
    assign shift_val = (in[30:23] > 127)? (in[30:23] - 127): (127 - in[30:23]);
    assign implied_bit_fraction = {1'b1,in[22:0]};
  

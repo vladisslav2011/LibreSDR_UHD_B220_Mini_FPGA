@@ -36,17 +36,6 @@ module chdr_32f_to_16sc
    wire [15:0] 	      s1_real;
    
 
-   reg [15:0] 	      imag0;
-   reg [15:0] 	      real0;
-   wire [15:0] 	      imag1;
-   wire [15:0] 	      real1;
-   
-
-
-
-   
-
-
    //chdr length calculations
    wire [15:0] 	      chdr_header_lines = chdr_has_time? 16 : 8;
 

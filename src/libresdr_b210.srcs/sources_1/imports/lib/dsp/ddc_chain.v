@@ -148,10 +148,10 @@ module ddc_chain
 	    .in(set_data),.out({reload_ld2,reload_we2,reload_ld1,reload_we1,coef_din[17:0]}),.changed(reload_go));
 
 	 // Halfbands
-	 wire 	     nd1, nd2, nd3;
-	 wire 	     rfd1, rfd2, rfd3;
-	 wire 	     rdy1, rdy2, rdy3;
-	 wire 	     data_valid1, data_valid2, data_valid3;
+	 wire 	     nd1, nd2;
+	 wire 	     rfd1, rfd2;
+	 wire 	     rdy1, rdy2;
+	 wire 	     data_valid1, data_valid2;
 	 wire [46:0] i_hb1, q_hb1;
 	 wire [46:0] i_hb2, q_hb2;
 	 localparam HB1_SCALE = 18;

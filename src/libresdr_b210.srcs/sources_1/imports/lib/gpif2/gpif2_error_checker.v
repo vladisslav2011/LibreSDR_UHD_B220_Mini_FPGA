@@ -102,6 +102,7 @@ module gpif2_error_checker
         endcase //state
     end
 
+    assign gate_terror = 1'b0; //fix linter warning
     assign bus_error = (gate_terror && gate_tvalid && gate_tready) || ((state == STATE_HDR) && i_tvalid && i_tready && obviously_bad_hdr);
     assign gate_tlast = (state == STATE_HDR)? (hdr_lines32 == 16'h1) : (state == STATE_EOF);
     assign gate_tdata = i_tdata;

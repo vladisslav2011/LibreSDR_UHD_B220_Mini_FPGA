@@ -37,7 +37,6 @@ module duc_chain
    wire [31:0] phase_inc;
    reg [31:0]  phase;
    wire [7:0]  interp_rate;
-   wire [3:0]  tx_femux_a, tx_femux_b;
    wire        enable_hb1, enable_hb2;
    wire        rate_change;
 
@@ -84,7 +83,6 @@ module duc_chain
      else
        phase <= phase + phase_inc;
 
-   wire        signed [17:0] da, db;
    wire        signed [35:0] prod_i, prod_q;
 
    wire [17:0] i_interp, q_interp;

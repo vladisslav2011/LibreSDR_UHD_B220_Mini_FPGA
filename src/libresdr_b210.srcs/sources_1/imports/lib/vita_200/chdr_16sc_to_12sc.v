@@ -36,15 +36,11 @@ module chdr_16sc_to_12sc
   wire [11:0]   i0;
   wire [11:0]   q1;
   wire [11:0]   i1;
-  wire [11:0]   q2;
-  wire [11:0]   i2;
 
   wire [16:0]   round_q0;
   wire [16:0]   round_i0;
   wire [16:0]   round_q1;
   wire [16:0]   round_i1;
-  wire [16:0]   round_q2;
-  wire [16:0]   round_i2;
 
   reg  [63:0]   curr_word;
 

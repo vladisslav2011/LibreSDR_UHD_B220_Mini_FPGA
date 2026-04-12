@@ -72,9 +72,9 @@ module radio_legacy
    wire 	 tx_tready_r, tx_tvalid_r;
    wire 	 tx_tlast_r;
 
-   wire [63:0] 	 txresp_tdata, txresp_tdata_r;
-   wire 	 txresp_tready, txresp_tready_r, txresp_tvalid, txresp_tvalid_r;
-   wire 	 txresp_tlast, txresp_tlast_r;
+   wire [63:0] 	 txresp_tdata_r;
+   wire 	 txresp_tready_r, txresp_tvalid_r;
+   wire 	 txresp_tlast_r;
 
    wire [63:0] 	 rmux_tdata_r;
    wire 	 rmux_tlast_r, rmux_tvalid_r, rmux_tready_r;
@@ -290,6 +290,8 @@ endgenerate
             .gpio_in(fp_gpio_in), .gpio_out(fp_gpio_out), .gpio_ddr(fp_gpio_ddr), 
             .gpio_out_fab(10'h000 /* no fabric control */), .gpio_sw_rb(fp_gpio_readback));
       end
+      else assign fp_gpio_readback = 10'h0;
+      
    endgenerate
 
 

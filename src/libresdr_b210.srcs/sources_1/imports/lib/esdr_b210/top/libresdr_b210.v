@@ -137,8 +137,6 @@ module libresdr_b210 (
     wire bus_clk;
     wire radio_clk;
     wire gpif_clk;
-    wire clk40;
-    wire clk200;
 
     // Resets
 
@@ -171,11 +169,8 @@ module libresdr_b210 (
     //
     /////////////////////////////////////////////////////////////////////
 //    wire clk_int40;
-    wire pps_refclk;
     wire [1:0] pps_select;
     wire pps_fpga_int;
-    wire ref_select;
-    wire refclk_locked_busclk;
 
     reg [15:0] clocks_ready_count;
     reg clocks_ready;
@@ -200,26 +195,13 @@ module libresdr_b210 (
     reset_sync ref_pll_sync(.clk(ref_pll_clk), .reset_in(!clocks_ready), .reset_out(ref_pll_rst));
     reset_sync gpif_sync(.clk(gpif_clk), .reset_in(!clocks_ready), .reset_out(gpif_rst));
 
-    wire [1:0] refsel;
     wire ref_sel;
     wire ext_ref;
-    wire ext_ref_is_pps;
     wire ext_ref_locked;
     wire lpps;
     
-    // pps_select == 2'b00 ----> onboard gps module pps
-    // pps_select == 2'b01 ----> external pps/10M
-    // pps_select == 2'b10 ----> internal pps genreated by fpga
-
-//    assign ext_ref =    (pps_select == 2'b01)? PPS_IN_EXT :
-//                        (pps_select == 2'b10 && ref_sel == 1'b0)? PPS_IN_EXT : // ref_sel selects the external or gpsdo clock source
-//                        (pps_select == 2'b10)? pps_fpga_int: 1'b0;
-
-//    assign refsel = ref_sel?2'b10:2'b11;
-
     
     wire is10meg;
-    wire ispps;
     wire clk10M_w;
     
     wire sync_200M;
