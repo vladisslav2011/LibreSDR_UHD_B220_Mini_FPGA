@@ -5,7 +5,7 @@ UHD-compatible — reports as USRP B210 (`COMPAT_MAJOR=16`, `COMPAT_MINOR=1`).
 
 ## Build
 
-Requires Vivado 2025.2 ML Standard with Artix-7 device support.
+Requires Vivado 2025.1 ML Standard with Artix-7 device support.
 
 ```bash
 vivado -mode batch -source build.tcl
@@ -28,7 +28,7 @@ that fail on hardware despite meeting timing.
 
 ## RTL Audit Fixes
 
-All fixes target the Artix-7 / Vivado 2025.2 toolchain. Upstream Ettus code
+All fixes target the Artix-7 / Vivado 2025.1 toolchain. Upstream Ettus code
 was written for Spartan-6 / ISE where some of these issues were latent.
 
 ### Clock Domain Crossing
@@ -57,7 +57,7 @@ was written for Spartan-6 / ISE where some of these issues were latent.
 
 Non-blocking `<=` in combinational `always @*` blocks changed to blocking `=`.
 Vivado may synthesize incorrect logic from the ambiguous `<=` form — the
-`radio_ctrl_proc.v` fix is **functionally required** on Artix-7 / Vivado 2025.2
+`radio_ctrl_proc.v` fix is **functionally required** on Artix-7 / Vivado 2025.1
 (without it, radio control packets fail).
 
 | File | Assignments fixed |
