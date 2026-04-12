@@ -9,6 +9,7 @@ module b205_ref_pll(
     input clk,      // 200 MHz sample clock
     input refclk,   // 40 MHz reference clock
     input ref,      // PPS or 10 MHz external reference
+    input [15:0] dac_def,
     output reg lpps,
     output reg locked,
 
@@ -225,7 +226,7 @@ module b205_ref_pll(
     always @(posedge clk) begin
         if (reset || ~valid_ref) begin
             state <= MEASURE;
-            daco <= 16'd32767;
+            daco <= dac_def;
             err <= 29'sd0;
             shift <= 29'sd0;
             adj <= 29'sd0;

@@ -206,7 +206,7 @@ module libresdr_b210 (
     
     wire sync_200M;
     reg sync_10M;
-    reg [8-1:0] counter_10M;
+    reg [4-1:0] counter_10M;
     
   BUFG BUFG_10M_inst (
       .O(clk10M_w), // 1-bit output: Clock output
@@ -237,15 +237,15 @@ encpy encpy_i(
   .clk_in1_10M  ( clk10M_w     )
     );
  
-always@(posedge sync_200M) begin
+always @(posedge sync_200M) begin
     if (is10meg==0) begin
-        counter_10M <= 8'd0;
+        counter_10M <= 4'd0;
         sync_10M    <= 1'b0;
     end else begin
-        if (counter_10M<8'd9) begin
+        if (counter_10M<4'd9) begin
             counter_10M <= counter_10M + 1;
         end else begin
-            counter_10M <=8'd0;
+            counter_10M <=4'd0;
             sync_10M <= ~sync_10M;
         end
     end
@@ -301,6 +301,10 @@ b205_ref_pll(
     .clk    (ref_pll_clk),      // 200 MHz sample clock
     .refclk (int_40mhz),   // 40 MHz reference clock
     .ref    (ext_ref),      // PPS or 10 MHz external reference
+    .dac_def(16'h7fff),  // default
+    //.dac_def(16'h8e10),  // sample 0
+    //.dac_def(16'haba0),  // sample 1
+    //.dac_def(16'h8d40),  // sample 2
     .lpps   (lpps),
     .locked (ext_ref_locked),
 
