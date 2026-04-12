@@ -46,11 +46,11 @@ module duc_chain
 
    setting_reg #(.my_addr(BASE+1), .width(18)) sr_1
      (.clk(clk),.rst(rst),.strobe(set_stb),.addr(set_addr),
-      .in(set_data),.out(scale_factor),.changed());
+      .in(set_data[17:0]),.out(scale_factor),.changed());
 
    setting_reg #(.my_addr(BASE+2), .width(10)) sr_2
      (.clk(clk),.rst(rst),.strobe(set_stb),.addr(set_addr),
-      .in(set_data),.out({enable_hb1, enable_hb2, interp_rate}),.changed(rate_change));
+      .in(set_data[9:0]),.out({enable_hb1, enable_hb2, interp_rate}),.changed(rate_change));
 
    // Strobes are all now delayed by 1 cycle for timing reasons
    wire        strobe_cic_pre, strobe_hb1_pre, strobe_hb2_pre;

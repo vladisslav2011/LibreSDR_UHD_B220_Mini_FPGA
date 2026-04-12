@@ -143,7 +143,9 @@ module axi_fifo_2clk #(
           .dout         (rd_data[((i+1)*BASE_WIDTH)-1:i*BASE_WIDTH]),
           .rd_en        (rd_en),
           .empty        (empty[i]),
-          .rd_data_count()
+          .rd_data_count(),
+          .wr_rst_busy(),
+          .rd_rst_busy()
         );
       end
     end

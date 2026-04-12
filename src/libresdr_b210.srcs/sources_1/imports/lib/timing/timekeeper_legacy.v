@@ -32,7 +32,7 @@ module timekeeper_legacy
       .out(time_at_next_event[31:0]), .changed());
 
    setting_reg #(.my_addr(SR_TIME_CTRL), .width(3)) sr_ctrl
-     (.clk(clk), .rst(reset), .strobe(set_stb), .addr(set_addr), .in(set_data),
+     (.clk(clk), .rst(reset), .strobe(set_stb), .addr(set_addr), .in(set_data[2:0]),
       .out({set_time_sync, set_time_pps, set_time_now}), .changed(cmd_trigger));
 
    //////////////////////////////////////////////////////////////////////////

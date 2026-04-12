@@ -47,7 +47,7 @@ module radio_ctrl_proc
    
    wire 	 IS_EC = ctrl_tdata[63];
    wire 	 HAS_TIME = ctrl_tdata[61];
-   reg 		 HAS_TIME_reg;
+   //reg 		 HAS_TIME_reg;
    
    reg [3:0] 	 rc_state;
    reg [63:0] 	 cmd_time;
@@ -60,7 +60,7 @@ module radio_ctrl_proc
      if(reset)
        begin
 	  rc_state <= RC_HEAD;
-	  HAS_TIME_reg <= 1'b0;
+	  //HAS_TIME_reg <= 1'b0;
 	  sid <= 32'd0;
 	  seqnum <= 12'd0;
        end
@@ -71,7 +71,7 @@ module radio_ctrl_proc
 	       begin
 		  sid <= ctrl_tdata[31:0];
 		  seqnum <= ctrl_tdata[59:48];
-		  HAS_TIME_reg <= HAS_TIME;
+		  //HAS_TIME_reg <= HAS_TIME;
 		  if(IS_EC)   //判断该数据包是不是命令包还是数据包
 		    if(HAS_TIME)  //如果是command包，需要判断是否具有时间戳
 		      rc_state <= RC_TIME; // 具有时间戳，跳转到接受时间戳的状态

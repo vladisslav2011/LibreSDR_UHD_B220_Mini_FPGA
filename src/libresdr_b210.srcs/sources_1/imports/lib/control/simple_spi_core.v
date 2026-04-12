@@ -72,7 +72,7 @@ module simple_spi_core
 
     wire [15:0] sclk_divider;
     setting_reg #(.my_addr(BASE+0),.width(16)) divider_sr(
-        .clk(clock),.rst(reset),.strobe(set_stb),.addr(set_addr),.in(set_data),
+        .clk(clock),.rst(reset),.strobe(set_stb),.addr(set_addr),.in(set_data[15:0]),
         .out(sclk_divider),.changed());
 
     wire [23:0] slave_select;

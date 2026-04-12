@@ -59,15 +59,15 @@ module ddc_chain
 
    setting_reg #(.my_addr(BASE+1), .width(18)) sr_1
      (.clk(clk),.rst(rst),.strobe(set_stb),.addr(set_addr),
-      .in(set_data),.out(scale_factor),.changed());
+      .in(set_data[17:0]),.out(scale_factor),.changed());
 
    setting_reg #(.my_addr(BASE+2), .width(10)) sr_2
      (.clk(clk),.rst(rst),.strobe(set_stb),.addr(set_addr),
-      .in(set_data),.out({enable_hb1, enable_hb2, cic_decim_rate}),.changed());
+      .in(set_data[9:0]),.out({enable_hb1, enable_hb2, cic_decim_rate}),.changed());
 
    setting_reg #(.my_addr(BASE+3), .width(4)) sr_3
      (.clk(clk),.rst(rst),.strobe(set_stb),.addr(set_addr),
-      .in(set_data),.out({invert_i,invert_q,realmode,swap_iq}),.changed());
+      .in(set_data[3:0]),.out({invert_i,invert_q,realmode,swap_iq}),.changed());
 
 
    // MUX so we can do realmode signals on either input
@@ -145,7 +145,7 @@ module ddc_chain
 
 	 setting_reg #(.my_addr(BASE+4), .width(22)) sr_4
 	   (.clk(clk),.rst(rst),.strobe(set_stb),.addr(set_addr),
-	    .in(set_data),.out({reload_ld2,reload_we2,reload_ld1,reload_we1,coef_din[17:0]}),.changed(reload_go));
+	    .in(set_data[21:0]),.out({reload_ld2,reload_we2,reload_ld1,reload_we1,coef_din[17:0]}),.changed(reload_go));
 
 	 // Halfbands
 	 wire 	     nd1, nd2;

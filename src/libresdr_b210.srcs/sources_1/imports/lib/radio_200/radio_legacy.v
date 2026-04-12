@@ -256,7 +256,7 @@ endgenerate
 
    // Set this register to loop TX data directly to RX data.
    setting_reg #(.my_addr(SR_LOOPBACK), .awidth(8), .width(1)) sr_loopback
-     (.clk(radio_clk), .rst(radio_rst), .strobe(set_stb), .addr(set_addr), .in(set_data),
+     (.clk(radio_clk), .rst(radio_rst), .strobe(set_stb), .addr(set_addr), .in(set_data[0]),
       .out(loopback), .changed());
 
    setting_reg #(.my_addr(SR_TEST), .awidth(8), .width(32)) sr_test
@@ -268,7 +268,7 @@ endgenerate
       .out(tx_idle), .changed());
 
    setting_reg #(.my_addr(SR_READBACK), .awidth(8), .width(3)) sr_rdback
-     (.clk(radio_clk), .rst(radio_rst), .strobe(set_stb), .addr(set_addr), .in(set_data),
+     (.clk(radio_clk), .rst(radio_rst), .strobe(set_stb), .addr(set_addr), .in(set_data[2:0]),
       .out(rb_addr), .changed());
 
    //The fe_atr pins driven by this module are always configured as outputs so default
@@ -294,7 +294,7 @@ endgenerate
          assign fp_gpio_readback = 10'h0;
          assign fp_gpio_ddr = 32'd0;
          assign fp_gpio_out = 32'd0;
-      end;
+      end
       
    endgenerate
 

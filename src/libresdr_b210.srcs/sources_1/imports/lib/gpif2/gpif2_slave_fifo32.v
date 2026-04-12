@@ -73,6 +73,9 @@ module gpif2_slave_fifo32
     //
     reg [31:0] gpif_data_in, gpif_data_out;
 
+    // Read strobe pipeline.
+    reg slrd1, slrd2, slrd3, slrd4, slrd5;
+
     always @(posedge gpif_clk)
       if (~slrd2)
 	// Update data register only when something useful is read.
@@ -103,15 +106,13 @@ module gpif2_slave_fifo32
     reg [2:0] idle_cycles;
 
     // Select next address (endpoint) to be processed
-    reg [1:0] last_addr, next_addr;
+    //reg [1:0] last_addr;
+    reg [1:0] next_addr;
 
     wire      local_fifo_ready;
 
     // Track size of a wriet burst to look for FX3 corner cases related to 2^n sized bursts.
     reg [15:0] transfer_size;
-
-    // Read strobe pipeline.
-    reg slrd1, slrd2, slrd3, slrd4, slrd5;
 
     always @(posedge gpif_clk)
      if (gpif_rst) begin
@@ -160,7 +161,7 @@ module gpif2_slave_fifo32
         idle_cycles <= 3'h0;
         fifoadr <= 0;
         first_read <= 1'b0;
-        last_addr <= 2'b0;
+        //last_addr <= 2'b0;
         rx_eop <= 1'b0;
         transfer_size <= 1;
         pad <= 0;
@@ -255,7 +256,7 @@ module gpif2_slave_fifo32
           end
 
             idle_cycles <= 3'h0;
-            last_addr <= fifoadr;
+            //last_addr <= fifoadr;
         end // case: STATE_THINK
 
       // Got here because READY flag asserted but watermark deaaserted...QED there's less than the watermarks

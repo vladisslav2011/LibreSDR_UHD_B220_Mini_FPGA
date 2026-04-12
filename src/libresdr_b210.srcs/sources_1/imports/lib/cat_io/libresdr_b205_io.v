@@ -84,6 +84,10 @@ module libresdr_b205_io (
   always @(posedge rx_clk_bufr or posedge radio_rst) begin
     if (radio_rst) begin
       rx_stb <= 1'b0;
+      rx_i0 <= 0;
+      rx_i1 <= 0;
+      rx_q0 <= 0;
+      rx_q1 <= 0;
     end else begin
       if (mimo_sync) begin
         if (rx_frame_rising) begin
@@ -131,7 +135,11 @@ module libresdr_b205_io (
     if (radio_rst) begin
       tx_stb       <= 1'b0;
       tx_frame_int <= 1'b1;
-    end else begin
+      tx_i <= 0;
+      tx_q <= 0;
+      tx_i0_hold <= 0;
+      tx_q0_hold <= 0;
+end else begin
       if (mimo_sync) begin
         tx_stb       <= ~tx_stb;
         tx_frame_int <= tx_stb;

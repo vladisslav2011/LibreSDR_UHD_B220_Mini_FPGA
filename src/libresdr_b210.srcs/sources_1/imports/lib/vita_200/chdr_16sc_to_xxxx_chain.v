@@ -31,7 +31,7 @@ module chdr_16sc_to_xxxx_chain
    wire [1:0] 	  demux_dst;
    setting_reg #(.my_addr(BASE), .width(2), .at_reset(2'b00)) sr_demux_dst
      (.clk(clk),.rst(reset),
-      .strobe(set_stb),.addr(set_addr), .in(set_data),
+      .strobe(set_stb),.addr(set_addr), .in(set_data[1:0]),
       .out({demux_dst}),.changed());
 
    //------------------------------------------------------------------

@@ -34,7 +34,7 @@ module hb47_int
    reg [WIDTH-1:0] data_in_pipe[0:23];
 
    reg 		   stb_pipe0, stb_pipe1, stb_pipe2, stb_pipe3, stb_pipe4 ;
-   reg 		   stb_pipe5, stb_pipe6, stb_pipe7, stb_pipe8, stb_pipe9 ;
+   reg 		   stb_pipe5, stb_pipe6; //, stb_pipe7, stb_pipe8, stb_pipe9 ;
    wire [WIDTH-1:0] sample_a[0:5], sample_b[0:5];
    wire [17:0] coeff[0:5];
    wire [47:0] 	    accumulator_out[0:5];
@@ -142,9 +142,9 @@ module hb47_int
 	stb_pipe4 <= 1'b0;   // Add both products into accumulator
    	stb_pipe5 <= 1'b0;   // Add 3 accumulator values into one partial result
 	stb_pipe6 <= 1'b0;   // Add both partial results into final full precision result.
-	stb_pipe7 <= 1'b0;   // Round result
-	stb_pipe8 <= 1'b0;   // Clip Result
-	stb_pipe9 <= 1'b0;
+	//stb_pipe7 <= 1'b0;   // Round result
+	//stb_pipe8 <= 1'b0;   // Clip Result
+	//stb_pipe9 <= 1'b0;
 
      end else begin
 	stb_pipe0 <= stb_in;      // New sample loaded into sample pipeline, setup on reg a
@@ -154,9 +154,9 @@ module hb47_int
 	stb_pipe4 <= stb_pipe3;   // Add both products into accumulator
    	stb_pipe5 <= stb_pipe4;   // Add 3 accumulator values into one partial result
 	stb_pipe6 <= stb_pipe5;   // Add both partial results into final result.
-	stb_pipe7 <= stb_pipe6;   // Round result
-	stb_pipe8 <= stb_pipe7;   // Clip Result
-	stb_pipe9 <= stb_pipe8;
+	//stb_pipe7 <= stb_pipe6;   // Round result
+	//stb_pipe8 <= stb_pipe7;   // Clip Result
+	//stb_pipe9 <= stb_pipe8;
 
      end // else: !if(rst)
 

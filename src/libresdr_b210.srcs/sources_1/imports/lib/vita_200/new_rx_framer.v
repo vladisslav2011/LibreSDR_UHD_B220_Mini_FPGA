@@ -76,7 +76,7 @@ module new_rx_framer
 
    setting_reg #(.my_addr(BASE), .width(16)) sr_maxlen
      (.clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr),
-      .in(set_data),.out(maxlen),.changed());
+      .in(set_data[15:0]),.out(maxlen),.changed());
 
    wire sid_changed;
    setting_reg #(.my_addr(BASE+1), .width(32)) sr_sid

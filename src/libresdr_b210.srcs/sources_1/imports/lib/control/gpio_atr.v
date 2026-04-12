@@ -28,32 +28,32 @@ module gpio_atr #(
   reg [WIDTH-1:0]    ogpio, igpio;
 
   setting_reg #(.my_addr(BASE+0), .width(WIDTH), .at_reset(DEFAULT_IDLE)) reg_idle (
-    .clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr), .in(set_data),
+    .clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr), .in(set_data[WIDTH-1:0]),
     .out(in_idle),.changed());
 
   setting_reg #(.my_addr(BASE+1), .width(WIDTH)) reg_rx (
-    .clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr), .in(set_data),
+    .clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr), .in(set_data[WIDTH-1:0]),
     .out(in_rx),.changed());
 
   setting_reg #(.my_addr(BASE+2), .width(WIDTH)) reg_tx (
-    .clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr), .in(set_data),
+    .clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr), .in(set_data[WIDTH-1:0]),
     .out(in_tx),.changed());
 
   setting_reg #(.my_addr(BASE+3), .width(WIDTH)) reg_fdx (
-    .clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr), .in(set_data),
+    .clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr), .in(set_data[WIDTH-1:0]),
     .out(in_fdx),.changed());
 
   setting_reg #(.my_addr(BASE+4), .width(WIDTH), .at_reset(DEFAULT_DDR)) reg_ddr (
-    .clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr), .in(set_data),
+    .clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr), .in(set_data[WIDTH-1:0]),
     .out(ddr_reg),.changed());
 
   setting_reg #(.my_addr(BASE+5), .width(WIDTH)) reg_atr_disable (
-    .clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr), .in(set_data),
+    .clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr), .in(set_data[WIDTH-1:0]),
     .out(atr_disable),.changed());
 
   generate if (FAB_CTRL_EN == 1) begin
     setting_reg #(.my_addr(BASE+6), .width(WIDTH)) reg_fabric_ctrl (
-      .clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr), .in(set_data),
+      .clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr), .in(set_data[WIDTH-1:0]),
       .out(fabric_ctrl),.changed());
   end else begin
     assign fabric_ctrl = {WIDTH{1'b0}};

@@ -215,15 +215,15 @@ module b200_core
       .out(misc_outs), .changed());
 
     setting_reg #(.my_addr(SR_CORE_READBACK), .awidth(8), .width(2)) sr_rdback
-     (.clk(bus_clk), .rst(bus_rst), .strobe(set_stb), .addr(set_addr), .in(set_data),
+     (.clk(bus_clk), .rst(bus_rst), .strobe(set_stb), .addr(set_addr), .in(set_data[1:0]),
       .out(rb_addr), .changed());
 
     setting_reg #(.my_addr(SR_CORE_GPSDO_ST), .awidth(8), .width(8)) sr_gpsdo_st
-     (.clk(bus_clk), .rst(1'b0/*keep*/), .strobe(set_stb), .addr(set_addr), .in(set_data),
+     (.clk(bus_clk), .rst(1'b0/*keep*/), .strobe(set_stb), .addr(set_addr), .in(set_data[7:0]),
       .out(gpsdo_st), .changed());
 
     setting_reg #(.my_addr(SR_CORE_SYNC), .awidth(8), .width(3)) sr_sync
-     (.clk(bus_clk), .rst(bus_rst), .strobe(set_stb), .addr(set_addr), .in(set_data),
+     (.clk(bus_clk), .rst(bus_rst), .strobe(set_stb), .addr(set_addr), .in(set_data[2:0]),
       .out({time_sync,pps_select}), .changed());
 
     synchronizer time_sync_synchronizer
@@ -232,7 +232,7 @@ module b200_core
     simple_spi_core #(.BASE(SR_CORE_SPI), .WIDTH(8), .CLK_IDLE(0), .SEN_IDLE(8'hFF)) misc_spi
      (.clock(bus_clk), .reset(bus_rst),
       .set_stb(set_stb), .set_addr(set_addr), .set_data(set_data),
-      .readback(spi_readback), .ready(spi_ready),
+      .readback(spi_readback), .readback_stb(),.ready(spi_ready),
       .sen(sen), .sclk(sclk), .mosi(mosi), .miso(miso),
       .debug());
 
@@ -263,7 +263,7 @@ module b200_core
     axi_fifo #(.WIDTH(65), .SIZE(EXTRA_BUFF_SIZE)) extra_rx_buff
      (.clk(bus_clk), .reset(bus_rst),.clear(1'b0),
       .i_tdata({rx_tlast_int, rx_tdata_int}), .i_tvalid(rx_tvalid_int), .i_tready(rx_tready_int),
-      .o_tdata({rx_tlast, rx_tdata}), .o_tvalid(rx_tvalid), .o_tready(rx_tready));
+      .o_tdata({rx_tlast, rx_tdata}), .o_tvalid(rx_tvalid), .o_tready(rx_tready), .space(), .occupied());
 
     /*******************************************************************
      * TX Data mux Routing logic
@@ -275,7 +275,7 @@ module b200_core
     axi_fifo #(.WIDTH(65), .SIZE(EXTRA_BUFF_SIZE)) extra_tx_buff
      (.clk(bus_clk), .reset(bus_rst),.clear(1'b0),
       .i_tdata({tx_tlast, tx_tdata}), .i_tvalid(tx_tvalid), .i_tready(tx_tready),
-      .o_tdata({tx_tlast_int, tx_tdata_int}), .o_tvalid(tx_tvalid_int), .o_tready(tx_tready_int));
+      .o_tdata({tx_tlast_int, tx_tdata_int}), .o_tvalid(tx_tvalid_int), .o_tready(tx_tready_int), .space(), .occupied());
 
     wire [63:0] tx_hdr;
     wire [1:0] tx_dst =
@@ -317,7 +317,7 @@ module b200_core
       .rx_tdata(r0_rx_tdata), .rx_tlast(r0_rx_tlast),  .rx_tvalid(r0_rx_tvalid), .rx_tready(r0_rx_tready),
       .ctrl_tdata(r0_ctrl_tdata), .ctrl_tlast(r0_ctrl_tlast),  .ctrl_tvalid(r0_ctrl_tvalid), .ctrl_tready(r0_ctrl_tready),
       .resp_tdata(r0_resp_tdata), .resp_tlast(r0_resp_tlast),  .resp_tvalid(r0_resp_tvalid), .resp_tready(r0_resp_tready),
-      .debug(radio0_debug)
+      .vita_time_b(), .debug(radio0_debug)
    );
 
     /*******************************************************************
@@ -349,7 +349,7 @@ module b200_core
       .rx_tdata(r1_rx_tdata), .rx_tlast(r1_rx_tlast),  .rx_tvalid(r1_rx_tvalid), .rx_tready(r1_rx_tready),
       .ctrl_tdata(r1_ctrl_tdata), .ctrl_tlast(r1_ctrl_tlast),  .ctrl_tvalid(r1_ctrl_tvalid), .ctrl_tready(r1_ctrl_tready),
       .resp_tdata(r1_resp_tdata), .resp_tlast(r1_resp_tlast),  .resp_tvalid(r1_resp_tvalid), .resp_tready(r1_resp_tready),
-      .debug(radio1_debug)
+      .vita_time_b(), .debug(radio1_debug)
    );
 `else
     assign radio_st = 8'h1;
@@ -410,7 +410,7 @@ module b200_core
       .cyc_i(wb_stb),
       .ack_o(wb_ack_o),
       .adr_i(debug_addr[2:0]),
-      .dat_i(debug_data[31:0]),
+      .dat_i(debug_data[15:0]),
       .dat_o(),
       .rx_int_o(),
       .tx_int_o(),

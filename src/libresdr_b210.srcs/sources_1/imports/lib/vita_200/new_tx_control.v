@@ -75,7 +75,7 @@ module new_tx_control
    // when the error occur, choose which policy?
    setting_reg #(.my_addr(BASE), .width(3)) sr_error_policy
      (.clk(clk),.rst(reset),.strobe(set_stb),.addr(set_addr),
-      .in(set_data),.out({policy_next_burst,policy_next_packet,policy_wait}),.changed(clear_seqnum_int));
+      .in(set_data[2:0]),.out({policy_next_burst,policy_next_packet,policy_wait}),.changed(clear_seqnum_int));
 
    time_compare time_compare (.time_now(vita_time), .trigger_time(send_time),
                    .now(now), .early(early), .late(late), .too_early(too_early));
