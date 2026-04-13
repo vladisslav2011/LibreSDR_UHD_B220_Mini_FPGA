@@ -16,7 +16,8 @@ module DACx311_auto_spi
   input [15:0] dat,
   output reg sclk,
   output reg mosi,
-  output reg sync_n
+  output reg sync_n,
+  output reg  ready_out
 );
   // initialize ldat to 0, thus forcing
   // a reload on init.
@@ -79,6 +80,7 @@ module DACx311_auto_spi
     default:
       nxt_scnt = scnt + 1'b1;
     endcase
+    ready_out = (scnt == READY) ? 1'b1 : 1'b0;
   end
 
   // note: defining the power-down mode bits to 00 for "normal operation"

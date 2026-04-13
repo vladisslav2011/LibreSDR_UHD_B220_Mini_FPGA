@@ -94,7 +94,7 @@ module b205_ref_pll(
     // reference frequency detection
     reg [27:0] refcnt;
     reg ref_detected;
-    reg ref_is_10M;
+    (* max_fanout = 50 *) reg ref_is_10M;
     reg ref_is_pps;
     wire valid_ref = ref_is_10M | ref_is_pps;
     always @(posedge clk) begin
@@ -211,6 +211,7 @@ module b205_ref_pll(
     localparam CALCULATE_ADJUSTMENT     =9'b100_0000;
     localparam CALCULATE_OUTPUT_VALUE   =9'b1000_0000;
     localparam APPLY_OUTPUT_VALUE       =9'b1_0000_0000;
+    localparam LOCK_REACHED             =9'd100;
     reg [8:0] state;
     reg [15:0] daco = 16'd32767;
     wire signed [28:0] lock_margin = ref_is_10M ? LOCK_MARGIN_10MHZ : LOCK_MARGIN_PPS;
@@ -218,20 +219,22 @@ module b205_ref_pll(
     reg signed [28:0] phase_err;
     reg signed [28:0] err;
     reg signed [28:0] shift;
-    reg signed [28:0] adj;
-    reg signed [28:0] adj_buff;
-    wire signed [28:0] dacv = {13'd0, daco};
-    reg signed [28:0] sum;
-    reg [2:0] ld;
+    reg signed [30:0] adj;
+    reg signed [30:0] adj_buff;
+    reg signed [30:0] sum;
+    reg [8:0] lock_counter;
+    reg ld;
     always @(posedge clk) begin
         if (reset || ~valid_ref) begin
             state <= MEASURE;
             daco <= dac_def;
             err <= 29'sd0;
             shift <= 29'sd0;
-            adj <= 29'sd0;
-            adj_buff <= 29'sd0;
-            ld <= 3'd0;
+            adj <= 31'sd0;
+            adj_buff <= 31'sd0;
+            sum <= {15'd0,dac_def};
+            lock_counter <= 9'd0;
+            ld <= 1'd0;
         end
         else begin
             case(state)
@@ -247,12 +250,12 @@ module b205_ref_pll(
                 end
                 CAPTURE_LAG: begin
                     phase_err <= lag;
-                    ld <= {ld[1:0], (lag <= lock_margin)};
+                    ld <= (lag <= lock_margin);
                     state <= CALCULATE_ERROR;
                 end
                 CAPTURE_LEAD: begin
                     phase_err <= lead;
-                    ld <= {ld[1:0], (-lead <= lock_margin)};
+                    ld <= (-lead <= lock_margin);
                     state <= CALCULATE_ERROR;
                 end
                 CALCULATE_ERROR: begin
@@ -263,6 +266,7 @@ module b205_ref_pll(
                 CALCULATE_10M_GAIN: begin
                     shift <= (err < -7 || err > 7) ? 7 : (err < 0 ? -err : err);
                     state <= CALCULATE_ADJUSTMENT;
+                    lock_counter <= (ld == 1'b1) ? ((lock_counter != LOCK_REACHED) ? lock_counter + 1 : lock_counter) : ((lock_counter != 0) ? lock_counter - 1 : 0);
                 end
                 CALCULATE_ADJUSTMENT: begin
                     // The VCTCXO is +/-5 ppm from 0.3V to 1.5V and the DAC is 16 bits,
@@ -271,50 +275,68 @@ module b205_ref_pll(
                     // which works out to 21.845 DAC units to correct each unit of error.
                     // Theory is nice, but the proportional and integral gains used here
                     // were determined through manual tuning.
+
+                    // Switch to narrow band tracking after locking
                     if (ref_is_10M)
-                        case(shift)
-                        0:adj <= err;
-                        1:adj <= err<<<1;
-                        2:adj <= err<<<2;
-                        3:adj <= err<<<3;
-                        4:adj <= err<<<4;
-                        5:adj <= err<<<5;
-                        6:adj <= err<<<6;
-                        7:adj <= err<<<7;
-                        default:adj <= err<<<7;
-                        endcase
-                        //adj <= (err <<< shift);
+                        adj <= (lock_counter == LOCK_REACHED ) ? (freq_err<<<2) + phase_err : err <<< (shift + 2);
                     else
-                        adj <=  adj_buff - err; //adj <=  (err <<< 4) - err;
+                        adj <=  (adj_buff - err) <<< 2; //adj <=  (err <<< 4) - err;
                     state <= CALCULATE_OUTPUT_VALUE;
                 end
                 CALCULATE_OUTPUT_VALUE: begin
-                    sum <= dacv + adj;
+                    sum <= sum + adj;
                     state <= APPLY_OUTPUT_VALUE;
                 end
                 APPLY_OUTPUT_VALUE: begin
                     // Clip and apply
-                    if (sum < 29'sd0)
+                    if (sum < 31'sd0) begin
                         daco <= 16'd0;
-                    else if (sum > 29'sd65535)
+                        sum <= 31'd0;
+                    end else if (sum > (31'sd65535 <<< 2)) begin
                         daco <= 16'd65535;
-                    else
-                        daco <= sum[15:0];
+                        sum <= (31'sd65535 <<< 2);
+                    end else
+                        daco <= sum[17:2];
                     state <= MEASURE;
                 end
             endcase
         end
     end
 
-    always @(posedge clk)
-        locked <= (ld == 3'b111);
+    always @(posedge clk) begin
+        if (~locked & (lock_counter == LOCK_REACHED))
+            locked <= 1'b1;
+        else if (locked & (lock_counter == 0))
+            locked <= 1'b0;
+    end
+
+    wire ready_out;
+    reg [3:0] counter4;
+    reg [15:0] dac_out;
+    reg ready_prev;
+
+    always @(posedge clk) if(reset) begin
+        counter4 <= 4'd0;
+        dac_out <= daco;
+        ready_prev <= 1'b0;
+    end else begin
+        if((ready_out ^ ready_prev) && ready_out) begin
+            counter4 <= (counter4 == 4'b1111)?4'b0:counter4 + 1;
+            if(counter4 < daco[3:0])
+                dac_out <= (daco & 16'hfff0)+16'h10;
+            else
+                dac_out <= (daco & 16'hfff0);
+        end
+        ready_prev <= ready_out;
+    end
 
     DACx311_auto_spi dac
     (
         .clk(clk),
-        .dat(daco),
+        .dat(dac_out),
         .sclk(sclk),
         .mosi(mosi),
-        .sync_n(sync_n)
+        .sync_n(sync_n),
+        .ready_out(ready_out)
     );
 endmodule
