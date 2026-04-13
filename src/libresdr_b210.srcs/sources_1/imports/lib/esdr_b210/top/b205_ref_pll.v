@@ -232,7 +232,7 @@ module b205_ref_pll(
             shift <= 29'sd0;
             adj <= 31'sd0;
             adj_buff <= 31'sd0;
-            sum <= {15'd0,dac_def};
+            sum <= {13'd0,dac_def,2'd0};
             lock_counter <= 9'd0;
             ld <= 1'd0;
         end
