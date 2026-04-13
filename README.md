@@ -89,6 +89,24 @@ Vivado may synthesize incorrect logic from the ambiguous `<=` form — the
 | `chdr_16sc_to_12sc.v` | `q1`/`i1` positive saturation clips at `12'h3FF` (1023) instead of `12'h7FF` (2047) | Changed to `12'h7FF` |
 | `cvita_uart.v` | Missing `else` before case statement; spurious semicolon after `begin` | Added `else`, removed semicolon |
 
+### Synchronization to external 10 MHz reference and initial VCTCXO accuracy
+
+| File | Issue | Fix |
+|------|-------|-----|
+| `b205_ref_pll.v` | Low DAC resolution | Implemented 4 bit PWM DAC resolution extension |
+| `b205_ref_pll.v` | Low DAC resolution | Implemented transition to narrow band tracking |
+| `DACx311_auto_spi.v` | Low DAC resolution | Added ready_out output to trigger PWM reload |
+| `b205_ref_pll.v` | Low initial VCTCXO accuracy | Added dac_def input to set default DAC voltage |
+| `libresdr_b210.v` | Low initial VCTCXO accuracy | Updated  b205_ref_pll inst to set default DAC voltage|
+| `usrp_b210_fpga.bin` | Low initial VCTCXO accuracy/Low DAC resolution| Updated pre-built bitstream|
+
+VCTCXO behavior before the fix (10 MHz reference signal is present):
+![Board](pics/before.png)
+
+VCTCXO behavior after the fix:
+![Board](pics/after.png)
+
+
 ## Hardware
 
 ![Board](pics/board.jpg)
