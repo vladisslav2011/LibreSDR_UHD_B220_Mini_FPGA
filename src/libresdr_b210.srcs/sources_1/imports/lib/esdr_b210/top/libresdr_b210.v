@@ -213,7 +213,7 @@ module libresdr_b210 (
       .I(CLKIN_10MHz)  // 1-bit input: Clock input
    );
 //encpy FPGA bit
-
+/*
 wire  status;
 
 encpy encpy_i(
@@ -225,7 +225,7 @@ encpy encpy_i(
     .status (  status       )
    );
    
-
+*/
     
     clk_wiz_0 clk_wiz_0_10M_detect 
     (
@@ -546,7 +546,7 @@ b205_ref_pll(
 
 
         assign             PPS_LED_inv          =   ~PPS_LED;
-        assign             REF_LOCKED_inv       =   ~status; //ency check ok
+        assign             REF_LOCKED_inv       =   ~REF_LOCKED;
         assign             REF_IS_10M_detect_inv=   ~is10meg;  
         
         assign             LED_RX1_inv          =   ~LED_RX1;
@@ -566,7 +566,7 @@ b205_ref_pll(
         assign             LED_TXRX1_B= 1'b1;   
         assign             LED_TXRX2_B= 1'b1;
         
-        assign             LED_USER_R = ~REF_LOCKED;
+        assign             LED_USER_R = 1'b1;
         //assign             LED_USER_B = 1'b1;
         
         

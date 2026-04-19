@@ -114,13 +114,6 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PSRCDIR/sources_1/new/DNA_capture.v">
-        <FileInfo>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
       <File Path="$PSRCDIR/sources_1/imports/lib/dsp/acc.v">
         <FileInfo>
           <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/SDR/usrp/myusrp/b210/lib/dsp/acc.v"/>
@@ -188,51 +181,6 @@
         <FileInfo>
           <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/SDR/usrp/myusrp/b210/lib/dsp/add_then_mac.v"/>
           <Attr Name="ImportTime" Val="1715861208"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PSRCDIR/sources_1/imports/HDL/AES-FPGA/aes_core/timescale.v">
-        <FileInfo>
-          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/AES-FPGA/aes_core/timescale.v"/>
-          <Attr Name="ImportTime" Val="1719758982"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PSRCDIR/sources_1/imports/HDL/AES-FPGA/aes_core/aes_cipher_top.v">
-        <FileInfo>
-          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/AES-FPGA/aes_core/aes_cipher_top.v"/>
-          <Attr Name="ImportTime" Val="1719758982"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PSRCDIR/sources_1/imports/HDL/AES-FPGA/aes_core/aes_key_expand_128.v">
-        <FileInfo>
-          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/AES-FPGA/aes_core/aes_key_expand_128.v"/>
-          <Attr Name="ImportTime" Val="1719758982"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PSRCDIR/sources_1/imports/HDL/AES-FPGA/aes_core/aes_rcon.v">
-        <FileInfo>
-          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/AES-FPGA/aes_core/aes_rcon.v"/>
-          <Attr Name="ImportTime" Val="1719758982"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PSRCDIR/sources_1/imports/HDL/AES-FPGA/aes_core/aes_sbox.v">
-        <FileInfo>
-          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/AES-FPGA/aes_core/aes_sbox.v"/>
-          <Attr Name="ImportTime" Val="1719758982"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -562,22 +510,6 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PSRCDIR/sources_1/imports/HDL/Verilog_i2c_eeprom/eeprom.v">
-        <FileInfo>
-          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/Verilog_i2c_eeprom/eeprom.v"/>
-          <Attr Name="ImportTime" Val="1719758997"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PSRCDIR/sources_1/new/encpy.v">
-        <FileInfo>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
       <File Path="$PSRCDIR/sources_1/imports/lib/gpif2/fifo64_to_gpif2.v">
         <FileInfo>
           <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/SDR/usrp/myusrp/b210/lib/gpif2/fifo64_to_gpif2.v"/>
@@ -681,24 +613,6 @@
         <FileInfo>
           <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/SDR/usrp/myusrp/b210/lib/ngc/hbdec2.v"/>
           <Attr Name="ImportTime" Val="1715861208"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PSRCDIR/sources_1/imports/HDL/Verilog_i2c_eeprom/iic.v">
-        <FileInfo>
-          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/Verilog_i2c_eeprom/iic.v"/>
-          <Attr Name="ImportTime" Val="1719758997"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
-      <File Path="$PSRCDIR/sources_1/imports/HDL/Verilog_i2c_eeprom/iic_control.v">
-        <FileInfo>
-          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/Verilog_i2c_eeprom/iic_control.v"/>
-          <Attr Name="ImportTime" Val="1719758997"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -1005,6 +919,102 @@
         <FileInfo>
           <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/SDR/usrp/myusrp/b210/libresdr_b210/top/libresdr_b210.v"/>
           <Attr Name="ImportTime" Val="1719837256"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/new/DNA_capture.v">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/imports/HDL/AES-FPGA/aes_core/timescale.v">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/AES-FPGA/aes_core/timescale.v"/>
+          <Attr Name="ImportTime" Val="1719758982"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/imports/HDL/AES-FPGA/aes_core/aes_cipher_top.v">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/AES-FPGA/aes_core/aes_cipher_top.v"/>
+          <Attr Name="ImportTime" Val="1719758982"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/imports/HDL/AES-FPGA/aes_core/aes_key_expand_128.v">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/AES-FPGA/aes_core/aes_key_expand_128.v"/>
+          <Attr Name="ImportTime" Val="1719758982"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/imports/HDL/AES-FPGA/aes_core/aes_rcon.v">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/AES-FPGA/aes_core/aes_rcon.v"/>
+          <Attr Name="ImportTime" Val="1719758982"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/imports/HDL/AES-FPGA/aes_core/aes_sbox.v">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/AES-FPGA/aes_core/aes_sbox.v"/>
+          <Attr Name="ImportTime" Val="1719758982"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/imports/HDL/Verilog_i2c_eeprom/eeprom.v">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/Verilog_i2c_eeprom/eeprom.v"/>
+          <Attr Name="ImportTime" Val="1719758997"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/new/encpy.v">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/imports/HDL/Verilog_i2c_eeprom/iic.v">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/Verilog_i2c_eeprom/iic.v"/>
+          <Attr Name="ImportTime" Val="1719758997"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PSRCDIR/sources_1/imports/HDL/Verilog_i2c_eeprom/iic_control.v">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="ImportPath" Val="$PPRDIR/../../../../workspace/HDL/Verilog_i2c_eeprom/iic_control.v"/>
+          <Attr Name="ImportTime" Val="1719758997"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
