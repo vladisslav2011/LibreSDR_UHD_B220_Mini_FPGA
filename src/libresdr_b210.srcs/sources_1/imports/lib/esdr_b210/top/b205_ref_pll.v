@@ -332,6 +332,7 @@ module b205_ref_pll(
 
     DACx311_auto_spi dac
     (
+        .en(ref_is_10M|ref_is_pps),
         .clk(clk),
         .dat(dac_out),
         .sclk(sclk),

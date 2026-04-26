@@ -12,6 +12,7 @@
 //
 module DACx311_auto_spi
 (
+  input en,
   input clk,
   input [15:0] dat,
   output reg sclk,
@@ -66,7 +67,7 @@ module DACx311_auto_spi
   localparam SYNCL=5'b00010; // assert sync_n low
   localparam SYNCH=5'b10011; // return sync_n high
 
-   wire upd = 1'b1&(scnt==READY);
+   wire upd = ((dat != ldat)||en)&(scnt==READY);
     
   assign cena = upd | scnt != READY;
 

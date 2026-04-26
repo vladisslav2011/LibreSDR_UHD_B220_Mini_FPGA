@@ -37,9 +37,9 @@ set_false_path -to [get_pins [list {b200_core/radio_0/ctrl_fifo/i_rst_sync_i/syn
           {sync_pps_ext/synchronizer_false_path/stages[0].value_reg[0][0]/D} \
           {u_libresdr_b210_io/sychronizer_radio_rst/synchronizer_false_path/stages[0].value_reg[0][0]/D} \
           {u_libresdr_b210_io/synchronizer_mimo/synchronizer_false_path/stages[0].value_reg[0][0]/D}]]
-set_property -dict {PACKAGE_PIN A18 IOSTANDARD LVCMOS33} [get_ports CLK_40M_DAC_nSYNC]
-set_property -dict {PACKAGE_PIN A19 IOSTANDARD LVCMOS33} [get_ports CLK_40M_DAC_SCLK]
-set_property -dict {PACKAGE_PIN A20 IOSTANDARD LVCMOS33} [get_ports CLK_40M_DAC_DIN]
+set_property -dict {PACKAGE_PIN A18 IOSTANDARD LVCMOS33 DRIVE 4 SLEW SLOW} [get_ports CLK_40M_DAC_nSYNC]
+set_property -dict {PACKAGE_PIN A19 IOSTANDARD LVCMOS33 DRIVE 4 SLEW SLOW} [get_ports CLK_40M_DAC_SCLK]
+set_property -dict {PACKAGE_PIN A20 IOSTANDARD LVCMOS33 DRIVE 4 SLEW SLOW} [get_ports CLK_40M_DAC_DIN]
 set_property -dict {PACKAGE_PIN A13 IOSTANDARD LVCMOS33} [get_ports PPS_IN_EXT]
 set_property -dict {PACKAGE_PIN C18 IOSTANDARD LVCMOS33} [get_ports CLK_40MHz_FPGA]
 set_property -dict {PACKAGE_PIN D17 IOSTANDARD LVCMOS33} [get_ports CLKIN_10MHz]
