@@ -297,6 +297,42 @@ end
     wire ref_pll_clk;
     wire b205_pll_dbg;
 
+    reg [15:0] dac_def = 16'h7fff;
+    wire [15:0] dac_def_buf;
+    wire [15:0] dac_now;
+    wire [15:0] dac_now_buf;
+    wire [31:0] rf0_user_w_8;
+    wire rf0_user_w_8_stb;
+    reg  [63:0] rf0_user_rb_8 = 0;
+    wire [31:0] rf1_user_w_8;
+    wire rf1_user_w_8_stb;
+    reg  [63:0] rf1_user_rb_8 = 0;
+
+    always @(posedge radio_clk)
+    begin
+        if(rf0_user_w_8_stb)
+        begin
+            dac_def <= rf0_user_w_8[15:0];
+        end else if(rf1_user_w_8_stb)
+        begin
+            dac_def <= rf1_user_w_8[15:0];
+        end
+        rf0_user_rb_8 <= {48'd0,dac_now_buf[15:0]};
+        rf1_user_rb_8 <= {48'd0,dac_now_buf[15:0]};
+    end
+
+    synchronizer #(.WIDTH(16), .STAGES(2), .INITIAL_VAL(16'h7fff), .FALSE_PATH_TO_IN(1))
+    sync_dac_def (
+        .clk(ref_pll_clk), .rst(0),
+        .in(dac_def), .out(dac_def_buf)
+    );
+
+    synchronizer #(.WIDTH(16), .STAGES(2), .INITIAL_VAL(0), .FALSE_PATH_TO_IN(1))
+    sync_dac_now (
+        .clk(radio_clk), .rst(radio_rst),
+        .in(dac_now[15:0]), .out(dac_now_buf)
+    );
+
 b205_ref_pll(
     .reset  (ref_pll_rst),
     .clk    (ref_pll_clk),      // 200 MHz sample clock
@@ -305,7 +341,9 @@ b205_ref_pll(
     //.dac_def(16'h7fff),  // default
     //.dac_def(16'h8e10),  // sample 0
     //.dac_def(16'haba0),  // sample 1
-    .dac_def(16'h8d40),  // sample 2
+    //.dac_def(16'h8d40),  // sample 2
+    .dac_def(dac_def_buf),
+    .dac_now(dac_now),
     .lpps   (lpps),
     .locked (ext_ref_locked),
 
@@ -484,7 +522,15 @@ b205_ref_pll(
     `else
             .debug_txd(), .debug_rxd(1'b0),
     `endif
-        .lock_signals(CAT_CTL_OUT[7:6])
+        .lock_signals(CAT_CTL_OUT[7:6]),
+
+        .rf0_user_w_8(rf0_user_w_8),
+        .rf0_user_w_8_stb(rf0_user_w_8_stb),
+        .rf0_user_rb_8(rf0_user_rb_8),
+        .rf1_user_w_8(rf1_user_w_8),
+        .rf1_user_w_8_stb(rf1_user_w_8_stb),
+        .rf1_user_rb_8(rf1_user_rb_8)
+
     );
     
     `ifdef TARGET_B210

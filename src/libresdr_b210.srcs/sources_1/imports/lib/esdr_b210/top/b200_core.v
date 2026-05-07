@@ -70,7 +70,14 @@ module b200_core
     ////////////////////////////////////////////////////////////////////
     // fe lock signals
     ////////////////////////////////////////////////////////////////////
-    input [1:0] lock_signals
+    input [1:0] lock_signals,
+    // user regs
+    output [31:0] rf0_user_w_8,
+    output rf0_user_w_8_stb,
+    input [63:0] rf0_user_rb_8,
+    output [31:0] rf1_user_w_8,
+    output rf1_user_w_8_stb,
+    input [63:0] rf1_user_rb_8
 
 );
     localparam SR_CORE_SPI       = 8'd8;
@@ -305,7 +312,7 @@ module b200_core
       .NEW_HB_INTERP(1),
       .NEW_HB_DECIM(1),
       .SOURCE_FLOW_CONTROL(0),
-      .USER_SETTINGS(0),
+      .USER_SETTINGS(1),
       .DEVICE("7SERIES")
    ) radio_0 (
       .radio_clk(radio_clk), .radio_rst(radio_rst),
@@ -317,7 +324,8 @@ module b200_core
       .rx_tdata(r0_rx_tdata), .rx_tlast(r0_rx_tlast),  .rx_tvalid(r0_rx_tvalid), .rx_tready(r0_rx_tready),
       .ctrl_tdata(r0_ctrl_tdata), .ctrl_tlast(r0_ctrl_tlast),  .ctrl_tvalid(r0_ctrl_tvalid), .ctrl_tready(r0_ctrl_tready),
       .resp_tdata(r0_resp_tdata), .resp_tlast(r0_resp_tlast),  .resp_tvalid(r0_resp_tvalid), .resp_tready(r0_resp_tready),
-      .vita_time_b(), .debug(radio0_debug)
+      .vita_time_b(), .debug(radio0_debug),
+      .user_w_8(rf0_user_w_8), .user_w_8_stb(rf0_user_w_8_stb), .user_rb_8(rf0_user_rb_8)
    );
 
     /*******************************************************************
@@ -337,7 +345,7 @@ module b200_core
       .NEW_HB_INTERP(1),
       .NEW_HB_DECIM(1),
       .SOURCE_FLOW_CONTROL(0),
-      .USER_SETTINGS(0),
+      .USER_SETTINGS(1),
       .DEVICE("7SERIES")
    ) radio_1 (
       .radio_clk(radio_clk), .radio_rst(radio_rst),
@@ -349,7 +357,8 @@ module b200_core
       .rx_tdata(r1_rx_tdata), .rx_tlast(r1_rx_tlast),  .rx_tvalid(r1_rx_tvalid), .rx_tready(r1_rx_tready),
       .ctrl_tdata(r1_ctrl_tdata), .ctrl_tlast(r1_ctrl_tlast),  .ctrl_tvalid(r1_ctrl_tvalid), .ctrl_tready(r1_ctrl_tready),
       .resp_tdata(r1_resp_tdata), .resp_tlast(r1_resp_tlast),  .resp_tvalid(r1_resp_tvalid), .resp_tready(r1_resp_tready),
-      .vita_time_b(), .debug(radio1_debug)
+      .vita_time_b(), .debug(radio1_debug),
+      .user_w_8(rf1_user_w_8), .user_w_8_stb(rf1_user_w_8_stb), .user_rb_8(rf1_user_rb_8)
    );
 `else
     assign radio_st = 8'h1;

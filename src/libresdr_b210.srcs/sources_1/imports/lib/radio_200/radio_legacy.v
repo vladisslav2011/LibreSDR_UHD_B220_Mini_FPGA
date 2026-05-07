@@ -33,6 +33,10 @@ module radio_legacy
 
    output reg [63:0] vita_time_b,
 
+   input [63:0] user_rb_8,
+   output [31:0] user_w_8,
+   output user_w_8_stb,
+
    output [63:0] debug
    );
 
@@ -214,9 +218,14 @@ generate
         (.clk(radio_clk), .rst(radio_rst), .strobe(set_stb_user), .addr(set_addr_user), .in(set_data_user),
          .out(user_reg_1_value), .changed());
 
+      setting_reg #(.my_addr(8'd2), .awidth(8), .width(32)) user_reg_2
+        (.clk(radio_clk), .rst(radio_rst), .strobe(set_stb_user), .addr(set_addr_user), .in(set_data_user),
+         .out(user_w_8), .changed(user_w_8_stb));
+
       always @* begin
          case(rb_addr_user)
              8'd0 : rb_data_user = {user_reg_1_value, user_reg_0_value};
+             8'd1 : rb_data_user = user_rb_8;
              default : rb_data_user = 64'd0;
          endcase
       end

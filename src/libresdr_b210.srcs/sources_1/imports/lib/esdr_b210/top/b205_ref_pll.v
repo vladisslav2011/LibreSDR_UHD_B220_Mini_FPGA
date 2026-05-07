@@ -10,6 +10,7 @@ module b205_ref_pll(
     input refclk,   // 40 MHz reference clock
     input ref,      // PPS or 10 MHz external reference
     input [15:0] dac_def,
+    output [15:0] dac_now,
     output reg lpps,
     output reg locked,
     output reg dbg,
@@ -321,13 +322,14 @@ module b205_ref_pll(
             locked <= 1'b0;
     end
 
+    assign dac_now = daco;
     wire ready_out;
     reg [DAC_REM_BITS-1:0] counter4;
     reg [DAC_IN_BITS-1:0] dac_out;
     reg [DAC_IN_BITS-1:0] dac_out_prev;
     reg ready_prev;
 
-    always @(posedge clk) if(reset) begin
+    always @(posedge clk) if(reset || ~valid_ref) begin
         counter4 <= 0;
         dac_out <= daco;
         ready_prev <= 1'b0;
