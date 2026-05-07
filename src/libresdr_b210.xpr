@@ -1224,13 +1224,6 @@
           <Attr Name="AutoDcp" Val="1"/>
         </FileInfo>
       </File>
-      <File Path="$PSRCDIR/utils_1/imports/impl_1/libresdr_b210_routed.dcp">
-        <FileInfo>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="implementation"/>
-          <Attr Name="AutoDcp" Val="1"/>
-        </FileInfo>
-      </File>
       <Config>
         <Option Name="TopAutoSet" Val="TRUE"/>
       </Config>
