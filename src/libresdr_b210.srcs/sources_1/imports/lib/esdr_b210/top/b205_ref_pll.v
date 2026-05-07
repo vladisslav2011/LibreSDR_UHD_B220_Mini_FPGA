@@ -12,6 +12,7 @@ module b205_ref_pll(
     input [15:0] dac_def,
     output reg lpps,
     output reg locked,
+    output reg dbg,
 
     // SPI lines to AD5662
     output sclk,
@@ -212,8 +213,16 @@ module b205_ref_pll(
     localparam CALCULATE_OUTPUT_VALUE   =9'b1000_0000;
     localparam APPLY_OUTPUT_VALUE       =9'b1_0000_0000;
     localparam LOCK_REACHED             =9'd100;
+    localparam DAC_IN_BITS              =16;
+    localparam DAC_RES_BITS             =12;
+    localparam SUM_EXTRA_BITS           =2;
+    localparam DAC_EXTRA_BITS           =2;
+    localparam DAC_REM_BITS             =DAC_IN_BITS-DAC_RES_BITS+DAC_EXTRA_BITS;
+    localparam PRESET_CNT_BITS          =7;
+    
     reg [8:0] state;
-    reg [15:0] daco = 16'd32767;
+    reg [DAC_IN_BITS-1:0] daco = 16'd32767;
+    reg [DAC_REM_BITS-1:0] dac_rem = 6'd0;
     wire signed [28:0] lock_margin = ref_is_10M ? LOCK_MARGIN_10MHZ : LOCK_MARGIN_PPS;
     wire signed [28:0] lag = lead + period;
     reg signed [28:0] phase_err;
@@ -227,12 +236,13 @@ module b205_ref_pll(
     always @(posedge clk) begin
         if (reset || ~valid_ref) begin
             state <= MEASURE;
+            dac_rem <=0;
             daco <= dac_def;
+            sum <= dac_def<<<SUM_EXTRA_BITS;
             err <= 29'sd0;
             shift <= 29'sd0;
             adj <= 31'sd0;
             adj_buff <= 31'sd0;
-            sum <= {13'd0,dac_def,2'd0};
             lock_counter <= 9'd0;
             ld <= 1'd0;
         end
@@ -278,9 +288,9 @@ module b205_ref_pll(
 
                     // Switch to narrow band tracking after locking
                     if (ref_is_10M)
-                        adj <= (lock_counter == LOCK_REACHED ) ? (freq_err<<<2) + phase_err : err <<< (shift + 2);
+                        adj <= (lock_counter == LOCK_REACHED ) ? (freq_err<<<SUM_EXTRA_BITS) + phase_err : err <<< (shift + SUM_EXTRA_BITS);
                     else
-                        adj <=  (adj_buff - err) <<< 2; //adj <=  (err <<< 4) - err;
+                        adj <=  (adj_buff - err) <<< SUM_EXTRA_BITS; //adj <=  (err <<< 4) - err;
                     state <= CALCULATE_OUTPUT_VALUE;
                 end
                 CALCULATE_OUTPUT_VALUE: begin
@@ -292,11 +302,12 @@ module b205_ref_pll(
                     if (sum < 31'sd0) begin
                         daco <= 16'd0;
                         sum <= 31'd0;
-                    end else if (sum > (31'sd65535 <<< 2)) begin
+                    end else if (sum > (31'sd65535 <<< SUM_EXTRA_BITS)) begin
                         daco <= 16'd65535;
-                        sum <= (31'sd65535 <<< 2);
+                        sum <= (31'sd65535 <<< SUM_EXTRA_BITS);
                     end else
-                        daco <= sum[17:2];
+                        daco <= sum[DAC_IN_BITS+SUM_EXTRA_BITS-1:SUM_EXTRA_BITS];
+                    dac_rem <= sum[DAC_REM_BITS-1:0];
                     state <= MEASURE;
                 end
             endcase
@@ -311,28 +322,31 @@ module b205_ref_pll(
     end
 
     wire ready_out;
-    reg [3:0] counter4;
-    reg [15:0] dac_out;
+    reg [DAC_REM_BITS-1:0] counter4;
+    reg [DAC_IN_BITS-1:0] dac_out;
+    reg [DAC_IN_BITS-1:0] dac_out_prev;
     reg ready_prev;
 
     always @(posedge clk) if(reset) begin
-        counter4 <= 4'd0;
+        counter4 <= 0;
         dac_out <= daco;
         ready_prev <= 1'b0;
     end else begin
         if((ready_out ^ ready_prev) && ready_out) begin
-            counter4 <= (counter4 == 4'b1111)?4'b0:counter4 + 1;
-            if(counter4 < daco[3:0])
+            counter4 <= (counter4 == (1<<DAC_REM_BITS)-1)?0:counter4 + 1;
+            if(counter4 < dac_rem)
                 dac_out <= (daco & 16'hfff0)+16'h10;
             else
                 dac_out <= (daco & 16'hfff0);
         end
         ready_prev <= ready_out;
+        if((daco & 16'hfff0) != (dac_out_prev & 16'hfff0)) dbg <= ~dbg;
+        dac_out_prev <= daco;
     end
 
     DACx311_auto_spi dac
     (
-        .en(ref_is_10M|ref_is_pps),
+        .en(valid_ref),
         .clk(clk),
         .dat(dac_out),
         .sclk(sclk),

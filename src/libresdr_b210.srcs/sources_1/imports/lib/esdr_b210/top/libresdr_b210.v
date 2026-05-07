@@ -295,23 +295,25 @@ end
    
     wire int_40mhz;
     wire ref_pll_clk;
+    wire b205_pll_dbg;
 
 b205_ref_pll(
     .reset  (ref_pll_rst),
     .clk    (ref_pll_clk),      // 200 MHz sample clock
     .refclk (int_40mhz),   // 40 MHz reference clock
     .ref    (ext_ref),      // PPS or 10 MHz external reference
-    .dac_def(16'h7fff),  // default
+    //.dac_def(16'h7fff),  // default
     //.dac_def(16'h8e10),  // sample 0
     //.dac_def(16'haba0),  // sample 1
-    //.dac_def(16'h8d40),  // sample 2
+    .dac_def(16'h8d40),  // sample 2
     .lpps   (lpps),
     .locked (ext_ref_locked),
 
     // SPI lines to AD5662
     .sclk   (CLK_40M_DAC_SCLK),
     .mosi   (CLK_40M_DAC_DIN),
-    .sync_n (CLK_40M_DAC_nSYNC)
+    .sync_n (CLK_40M_DAC_nSYNC),
+    .dbg(b205_pll_dbg)
     );
 
 
@@ -546,7 +548,7 @@ b205_ref_pll(
 
 
         assign             PPS_LED_inv          =   ~PPS_LED;
-        assign             REF_LOCKED_inv       =   ~REF_LOCKED;
+        assign             REF_LOCKED_inv       =   ~(REF_LOCKED & ~b205_pll_dbg);
         assign             REF_IS_10M_detect_inv=   ~is10meg;  
         
         assign             LED_RX1_inv          =   ~LED_RX1;
@@ -566,7 +568,7 @@ b205_ref_pll(
         assign             LED_TXRX1_B= 1'b1;   
         assign             LED_TXRX2_B= 1'b1;
         
-        assign             LED_USER_R = 1'b1;
+        assign             LED_USER_R = ~b205_pll_dbg;
         //assign             LED_USER_B = 1'b1;
         
         
