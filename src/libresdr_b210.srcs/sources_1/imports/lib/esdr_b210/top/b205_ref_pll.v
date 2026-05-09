@@ -10,6 +10,7 @@ module b205_ref_pll(
     input refclk,   // 40 MHz reference clock
     input ref,      // PPS or 10 MHz external reference
     input [15:0] dac_def,
+    input force_fine,
     output [15:0] dac_now,
     output reg lpps,
     output reg locked,
@@ -324,19 +325,23 @@ module b205_ref_pll(
 
     assign dac_now = daco;
     wire ready_out;
+    reg [DAC_REM_BITS-1:0] dac_rem_comp;
     reg [DAC_REM_BITS-1:0] counter4;
     reg [DAC_IN_BITS-1:0] dac_out;
     reg [DAC_IN_BITS-1:0] dac_out_prev;
     reg ready_prev;
 
-    always @(posedge clk) if(reset || ~valid_ref) begin
+    always @(posedge clk)
+        dac_rem_comp<= force_fine?(daco[DAC_IN_BITS-DAC_RES_BITS-1:0]<< DAC_EXTRA_BITS):dac_rem;
+
+    always @(posedge clk) if(reset || (~valid_ref && ~force_fine)) begin
         counter4 <= 0;
         dac_out <= daco;
         ready_prev <= 1'b0;
     end else begin
         if((ready_out ^ ready_prev) && ready_out) begin
             counter4 <= (counter4 == (1<<DAC_REM_BITS)-1)?0:counter4 + 1;
-            if(counter4 < dac_rem)
+            if(counter4 < dac_rem_comp)
                 dac_out <= (daco & 16'hfff0)+16'h10;
             else
                 dac_out <= (daco & 16'hfff0);
@@ -348,7 +353,7 @@ module b205_ref_pll(
 
     DACx311_auto_spi dac
     (
-        .en(valid_ref),
+        .en(valid_ref || force_fine),
         .clk(clk),
         .dat(dac_out),
         .sclk(sclk),

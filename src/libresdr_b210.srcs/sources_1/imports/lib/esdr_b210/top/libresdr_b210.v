@@ -307,15 +307,19 @@ end
     wire [31:0] rf1_user_w_8;
     wire rf1_user_w_8_stb;
     reg  [63:0] rf1_user_rb_8 = 0;
+    reg  tune_fine = 0;
+    wire  tune_fine_buf;
 
     always @(posedge radio_clk)
     begin
         if(rf0_user_w_8_stb)
         begin
             dac_def <= rf0_user_w_8[15:0];
+            tune_fine <= rf0_user_w_8[31];
         end else if(rf1_user_w_8_stb)
         begin
             dac_def <= rf1_user_w_8[15:0];
+            tune_fine <= rf1_user_w_8[31];
         end
         rf0_user_rb_8 <= {48'd0,dac_now_buf[15:0]};
         rf1_user_rb_8 <= {48'd0,dac_now_buf[15:0]};
@@ -327,17 +331,24 @@ end
         .in(dac_def), .out(dac_def_buf)
     );
 
+    synchronizer #(.WIDTH(1), .STAGES(2), .INITIAL_VAL(1'b0), .FALSE_PATH_TO_IN(1))
+    sync_tune_fine (
+        .clk(ref_pll_clk), .rst(0),
+        .in(tune_fine), .out(tune_fine_buf)
+    );
+
     synchronizer #(.WIDTH(16), .STAGES(2), .INITIAL_VAL(0), .FALSE_PATH_TO_IN(1))
     sync_dac_now (
         .clk(radio_clk), .rst(radio_rst),
         .in(dac_now[15:0]), .out(dac_now_buf)
     );
 
-b205_ref_pll(
+b205_ref_pll ref_pll_libresdr(
     .reset  (ref_pll_rst),
     .clk    (ref_pll_clk),      // 200 MHz sample clock
     .refclk (int_40mhz),   // 40 MHz reference clock
     .ref    (ext_ref),      // PPS or 10 MHz external reference
+    .force_fine(tune_fine_buf),
     //.dac_def(16'h7fff),  // default
     //.dac_def(16'h8e10),  // sample 0
     //.dac_def(16'haba0),  // sample 1
