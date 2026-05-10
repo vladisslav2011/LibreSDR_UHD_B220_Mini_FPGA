@@ -211,7 +211,8 @@ module b205_ref_pll(
     localparam CAPTURE_LEAD             =9'b1000;
     localparam CALCULATE_ERROR          =9'b1_0000;
     localparam CALCULATE_10M_GAIN       =9'b10_0000;
-    localparam CALCULATE_ADJUSTMENT     =9'b100_0000;
+    localparam CALCULATE_ADJUSTMENT0    =9'b100_0000;
+    localparam CALCULATE_ADJUSTMENT1    =9'b100_0001;
     localparam CALCULATE_OUTPUT_VALUE   =9'b1000_0000;
     localparam APPLY_OUTPUT_VALUE       =9'b1_0000_0000;
     localparam LOCK_REACHED             =9'd100;
@@ -231,6 +232,9 @@ module b205_ref_pll(
     reg signed [28:0] err;
     reg signed [28:0] shift;
     reg signed [30:0] adj;
+    reg signed [30:0] adj_no_lock_10M;
+    reg signed [30:0] adj_lock_10M;
+    reg signed [30:0] adj_1pps;
     reg signed [30:0] adj_buff;
     reg signed [30:0] sum;
     reg [8:0] lock_counter;
@@ -244,6 +248,9 @@ module b205_ref_pll(
             err <= 29'sd0;
             shift <= 29'sd0;
             adj <= 31'sd0;
+            adj_no_lock_10M <= 31'sd0;
+            adj_lock_10M <= 31'sd0;
+            adj_1pps <= 31'sd0;
             adj_buff <= 31'sd0;
             lock_counter <= 9'd0;
             ld <= 1'd0;
@@ -273,14 +280,14 @@ module b205_ref_pll(
                 CALCULATE_ERROR: begin
                     err <= phase_err + freq_err;
                     adj_buff <= (err <<< 4);
-                    state <= ref_is_10M ? CALCULATE_10M_GAIN : CALCULATE_ADJUSTMENT;
+                    state <= ref_is_10M ? CALCULATE_10M_GAIN : CALCULATE_ADJUSTMENT0;
                 end
                 CALCULATE_10M_GAIN: begin
                     shift <= (err < -7 || err > 7) ? 7 : (err < 0 ? -err : err);
-                    state <= CALCULATE_ADJUSTMENT;
+                    state <= CALCULATE_ADJUSTMENT0;
                     lock_counter <= (ld == 1'b1) ? ((lock_counter != LOCK_REACHED) ? lock_counter + 1 : lock_counter) : ((lock_counter != 0) ? lock_counter - 1 : 0);
                 end
-                CALCULATE_ADJUSTMENT: begin
+                CALCULATE_ADJUSTMENT0: begin
                     // The VCTCXO is +/-5 ppm from 0.3V to 1.5V and the DAC is 16 bits,
                     // which works out to 0.000228885 ppm per DAC unit.
                     // The 200 MHz sampling clock means each unit of error is 0.005 ppm,
@@ -289,10 +296,16 @@ module b205_ref_pll(
                     // were determined through manual tuning.
 
                     // Switch to narrow band tracking after locking
+                    adj_no_lock_10M <= err <<< (shift + SUM_EXTRA_BITS);
+                    adj_lock_10M <= (freq_err<<<SUM_EXTRA_BITS) + phase_err;
+                    adj_1pps <=  (adj_buff - err) <<< SUM_EXTRA_BITS; //adj <=  (err <<< 4) - err;
+                    state <= CALCULATE_ADJUSTMENT1;
+                end
+                CALCULATE_ADJUSTMENT1: begin
                     if (ref_is_10M)
-                        adj <= (lock_counter == LOCK_REACHED ) ? (freq_err<<<SUM_EXTRA_BITS) + phase_err : err <<< (shift + SUM_EXTRA_BITS);
+                        adj <= (lock_counter == LOCK_REACHED ) ? adj_lock_10M : adj_no_lock_10M;
                     else
-                        adj <=  (adj_buff - err) <<< SUM_EXTRA_BITS; //adj <=  (err <<< 4) - err;
+                        adj <=  adj_1pps;
                     state <= CALCULATE_OUTPUT_VALUE;
                 end
                 CALCULATE_OUTPUT_VALUE: begin
@@ -326,22 +339,28 @@ module b205_ref_pll(
     assign dac_now = daco;
     wire ready_out;
     reg [DAC_REM_BITS-1:0] dac_rem_comp;
-    reg [DAC_REM_BITS-1:0] counter4;
     reg [DAC_IN_BITS-1:0] dac_out;
     reg [DAC_IN_BITS-1:0] dac_out_prev;
     reg ready_prev;
+
+    wire ds_vo;
+    delta_sigma_dac #(.NBITS(DAC_REM_BITS)) res_extender(
+        .clk(clk),
+        .en((ready_out ^ ready_prev) && ready_out),
+        .rst(reset || (~valid_ref && ~force_fine)),
+        .dat(dac_rem_comp),
+        .d(ds_vo)
+    );
 
     always @(posedge clk)
         dac_rem_comp<= force_fine?(daco[DAC_IN_BITS-DAC_RES_BITS-1:0]<< DAC_EXTRA_BITS):dac_rem;
 
     always @(posedge clk) if(reset || (~valid_ref && ~force_fine)) begin
-        counter4 <= 0;
         dac_out <= daco;
         ready_prev <= 1'b0;
     end else begin
         if((ready_out ^ ready_prev) && ready_out) begin
-            counter4 <= (counter4 == (1<<DAC_REM_BITS)-1)?0:counter4 + 1;
-            if(counter4 < dac_rem_comp)
+            if(ds_vo)
                 dac_out <= (daco & 16'hfff0)+16'h10;
             else
                 dac_out <= (daco & 16'hfff0);
