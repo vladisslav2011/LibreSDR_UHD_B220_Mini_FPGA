@@ -605,8 +605,8 @@ b205_ref_pll ref_pll_libresdr(
 
 
         assign             PPS_LED_inv          =   ~PPS_LED;
-        assign             REF_LOCKED_inv       =   ~(REF_LOCKED & ~b205_pll_dbg);
-        assign             REF_IS_10M_detect_inv=   ~is10meg;  
+        assign             REF_LOCKED_inv       =   ~REF_LOCKED;
+        assign             REF_IS_10M_detect_inv=   ~(is10meg & ~b205_pll_dbg);
         
         assign             LED_RX1_inv          =   ~LED_RX1;
         assign             LED_RX2_inv          =   ~LED_RX2;
@@ -625,7 +625,7 @@ b205_ref_pll ref_pll_libresdr(
         assign             LED_TXRX1_B= 1'b1;   
         assign             LED_TXRX2_B= 1'b1;
         
-        assign             LED_USER_R = ~b205_pll_dbg;
+        assign             LED_USER_R = ~(is10meg & b205_pll_dbg);
         //assign             LED_USER_B = 1'b1;
         
         
