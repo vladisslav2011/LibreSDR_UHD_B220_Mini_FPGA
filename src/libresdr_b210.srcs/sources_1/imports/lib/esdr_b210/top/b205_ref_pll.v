@@ -213,7 +213,8 @@ module b205_ref_pll(
     localparam CALCULATE_10M_GAIN       =9'b10_0000;
     localparam CALCULATE_ADJUSTMENT0    =9'b100_0000;
     localparam CALCULATE_ADJUSTMENT1    =9'b100_0001;
-    localparam CALCULATE_OUTPUT_VALUE   =9'b1000_0000;
+    localparam CALCULATE_OUTPUT_VALUE0  =9'b1000_0000;
+    localparam CALCULATE_OUTPUT_VALUE1  =9'b1000_0001;
     localparam APPLY_OUTPUT_VALUE       =9'b1_0000_0000;
     localparam LOCK_REACHED             =9'd100;
     localparam DAC_IN_BITS              =16;
@@ -231,11 +232,16 @@ module b205_ref_pll(
     reg signed [28:0] phase_err;
     reg signed [28:0] err;
     reg signed [28:0] shift;
-    reg signed [30:0] adj;
-    reg signed [30:0] adj_no_lock_10M;
-    reg signed [30:0] adj_lock_10M;
-    reg signed [30:0] adj_1pps;
+    reg signed [30:0] adj_freq;
+    reg signed [30:0] adj_phase;
+    reg signed [30:0] adj_no_lock_10M_freq;
+    reg signed [30:0] adj_lock_10M_freq;
+    reg signed [30:0] adj_1pps_freq;
+    reg signed [30:0] adj_no_lock_10M_phase;
+    reg signed [30:0] adj_lock_10M_phase;
+    reg signed [30:0] adj_1pps_phase;
     reg signed [30:0] adj_buff;
+    reg signed [30:0] sum_acc;
     reg signed [30:0] sum;
     reg [8:0] lock_counter;
     reg ld;
@@ -244,13 +250,18 @@ module b205_ref_pll(
             state <= MEASURE;
             dac_rem <=0;
             daco <= dac_def;
+            sum_acc <= dac_def<<<SUM_EXTRA_BITS;
             sum <= dac_def<<<SUM_EXTRA_BITS;
             err <= 29'sd0;
             shift <= 29'sd0;
-            adj <= 31'sd0;
-            adj_no_lock_10M <= 31'sd0;
-            adj_lock_10M <= 31'sd0;
-            adj_1pps <= 31'sd0;
+            adj_freq <= 31'sd0;
+            adj_phase <= 31'sd0;
+            adj_no_lock_10M_freq <= 31'sd0;
+            adj_lock_10M_freq <= 31'sd0;
+            adj_1pps_freq <= 31'sd0;
+            adj_no_lock_10M_phase <= 31'sd0;
+            adj_lock_10M_phase <= 31'sd0;
+            adj_1pps_phase <= 31'sd0;
             adj_buff <= 31'sd0;
             lock_counter <= 9'd0;
             ld <= 1'd0;
@@ -296,24 +307,38 @@ module b205_ref_pll(
                     // were determined through manual tuning.
 
                     // Switch to narrow band tracking after locking
-                    adj_no_lock_10M <= err <<< (shift + SUM_EXTRA_BITS);
-                    adj_lock_10M <= (freq_err<<<SUM_EXTRA_BITS) + phase_err;
-                    adj_1pps <=  (adj_buff - err) <<< SUM_EXTRA_BITS; //adj <=  (err <<< 4) - err;
+                    adj_no_lock_10M_freq <= err <<< (shift + SUM_EXTRA_BITS);
+                    adj_no_lock_10M_phase <= 0;
+                    adj_lock_10M_freq <= freq_err<<< (shift>>1);
+                    adj_lock_10M_phase <= phase_err;
+                    adj_1pps_freq <=  (adj_buff - err) <<< SUM_EXTRA_BITS; //adj <=  (err <<< 4) - err;
+                    adj_1pps_phase <= 0;  
                     state <= CALCULATE_ADJUSTMENT1;
                 end
                 CALCULATE_ADJUSTMENT1: begin
-                    if (ref_is_10M)
-                        adj <= (lock_counter == LOCK_REACHED ) ? adj_lock_10M : adj_no_lock_10M;
-                    else
-                        adj <=  adj_1pps;
-                    state <= CALCULATE_OUTPUT_VALUE;
+                    if (ref_is_10M) begin
+                        adj_freq <= (lock_counter == LOCK_REACHED ) ? adj_lock_10M_freq : adj_no_lock_10M_freq;
+                        adj_phase <= (lock_counter == LOCK_REACHED ) ? adj_lock_10M_phase : adj_no_lock_10M_phase;
+                    end else begin
+                        adj_freq <=  adj_1pps_freq;
+                        adj_phase <=  adj_1pps_phase;
+                    end
+                    state <= CALCULATE_OUTPUT_VALUE0;
                 end
-                CALCULATE_OUTPUT_VALUE: begin
-                    sum <= sum + adj;
+                CALCULATE_OUTPUT_VALUE0: begin
+                    sum_acc  <= sum_acc + adj_freq;
+                    state <= CALCULATE_OUTPUT_VALUE1;
+                end
+                CALCULATE_OUTPUT_VALUE1: begin
+                    sum <= sum_acc + adj_phase;
                     state <= APPLY_OUTPUT_VALUE;
                 end
                 APPLY_OUTPUT_VALUE: begin
                     // Clip and apply
+                    if (sum_acc < 31'sd0)
+                        sum_acc <= 31'sd0;
+                    else if (sum_acc > (31'sd65535 <<< SUM_EXTRA_BITS))
+                        sum_acc <= (31'sd65535 <<< SUM_EXTRA_BITS);
                     if (sum < 31'sd0) begin
                         daco <= 16'd0;
                         sum <= 31'd0;
