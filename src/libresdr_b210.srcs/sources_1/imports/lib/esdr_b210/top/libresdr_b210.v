@@ -299,14 +299,15 @@ end
 
     reg [15:0] dac_def = 16'h7fff;
     wire [15:0] dac_def_buf;
-    wire [15:0] dac_now;
-    wire [15:0] dac_now_buf;
+    wire [31:0] dac_now;
+    wire [31:0] phase_err_now;
+    wire [63:0] rb8_buf;
     wire [31:0] rf0_user_w_8;
     wire rf0_user_w_8_stb;
-    reg  [63:0] rf0_user_rb_8 = 0;
+    (* ASYNC_REG = "TRUE" *) reg  [63:0] rf0_user_rb_8 = 0;
     wire [31:0] rf1_user_w_8;
     wire rf1_user_w_8_stb;
-    reg  [63:0] rf1_user_rb_8 = 0;
+    (* ASYNC_REG = "TRUE" *) reg  [63:0] rf1_user_rb_8 = 0;
     reg  tune_fine = 0;
     wire  tune_fine_buf;
 
@@ -321,8 +322,8 @@ end
             dac_def <= rf1_user_w_8[15:0];
             tune_fine <= rf1_user_w_8[31];
         end
-        rf0_user_rb_8 <= {48'd0,dac_now_buf[15:0]};
-        rf1_user_rb_8 <= {48'd0,dac_now_buf[15:0]};
+        rf0_user_rb_8 <= rb8_buf;
+        rf1_user_rb_8 <= rb8_buf;
     end
 
     synchronizer #(.WIDTH(16), .STAGES(2), .INITIAL_VAL(16'h7fff), .FALSE_PATH_TO_IN(1))
@@ -337,10 +338,10 @@ end
         .in(tune_fine), .out(tune_fine_buf)
     );
 
-    synchronizer #(.WIDTH(16), .STAGES(2), .INITIAL_VAL(0), .FALSE_PATH_TO_IN(1))
+    synchronizer #(.WIDTH(64), .STAGES(2), .INITIAL_VAL(0), .FALSE_PATH_TO_IN(1))
     sync_dac_now (
         .clk(radio_clk), .rst(radio_rst),
-        .in(dac_now[15:0]), .out(dac_now_buf)
+        .in({phase_err_now, dac_now}), .out(rb8_buf)
     );
 
 b205_ref_pll ref_pll_libresdr(
@@ -355,6 +356,7 @@ b205_ref_pll ref_pll_libresdr(
     //.dac_def(16'h8d40),  // sample 2
     .dac_def(dac_def_buf),
     .dac_now(dac_now),
+    .phase_err_now(phase_err_now),
     .lpps   (lpps),
     .locked (ext_ref_locked),
 
@@ -606,7 +608,7 @@ b205_ref_pll ref_pll_libresdr(
 
         assign             PPS_LED_inv          =   ~PPS_LED;
         assign             REF_LOCKED_inv       =   ~REF_LOCKED;
-        assign             REF_IS_10M_detect_inv=   ~(is10meg & ~b205_pll_dbg);
+        assign             REF_IS_10M_detect_inv=   ~(is10meg_refpll & ~b205_pll_dbg);
         
         assign             LED_RX1_inv          =   ~LED_RX1;
         assign             LED_RX2_inv          =   ~LED_RX2;
@@ -625,7 +627,7 @@ b205_ref_pll ref_pll_libresdr(
         assign             LED_TXRX1_B= 1'b1;   
         assign             LED_TXRX2_B= 1'b1;
         
-        assign             LED_USER_R = ~(is10meg & b205_pll_dbg);
+        assign             LED_USER_R = ~(is10meg_refpll & b205_pll_dbg);
         //assign             LED_USER_B = 1'b1;
         
         

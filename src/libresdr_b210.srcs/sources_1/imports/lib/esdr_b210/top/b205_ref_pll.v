@@ -11,7 +11,8 @@ module b205_ref_pll(
     input ref,      // PPS or 10 MHz external reference
     input [15:0] dac_def,
     input force_fine,
-    output [15:0] dac_now,
+    output [31:0] dac_now,
+    output [31:0] phase_err_now,
     output reg lpps,
     output reg locked,
     output reg dbg,
@@ -339,6 +340,7 @@ module b205_ref_pll(
                         sum_acc <= 31'sd0;
                     else if (sum_acc > (31'sd65535 <<< SUM_EXTRA_BITS))
                         sum_acc <= (31'sd65535 <<< SUM_EXTRA_BITS);
+
                     if (sum < 31'sd0) begin
                         daco <= 16'd0;
                         sum <= 31'd0;
@@ -361,7 +363,9 @@ module b205_ref_pll(
             locked <= 1'b0;
     end
 
-    assign dac_now = daco;
+    //assign dac_now = {sum[30],sum};
+    assign dac_now = {freq_err[28],freq_err[28],freq_err[28],freq_err};
+    assign phase_err_now = {phase_err[28],phase_err[28],phase_err[28],phase_err};
     wire ready_out;
     reg [DAC_REM_BITS-1:0] dac_rem_comp;
     reg [DAC_IN_BITS-1:0] dac_out;
