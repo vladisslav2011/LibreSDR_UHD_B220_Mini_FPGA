@@ -348,12 +348,14 @@ module b205_ref_pll(
     reg [DAC_IN_BITS-1:0] dac_out;
     reg [DAC_IN_BITS-1:0] dac_out_prev;
     reg ready_prev;
+    wire dac_needs_sync = (daco & 16'hfff0) != (dac_out_prev & 16'hfff0); 
 
     wire ds_vo;
     delta_sigma_dac #(.NBITS(DAC_REM_BITS)) res_extender(
         .clk(clk),
         .en((ready_out ^ ready_prev) && ready_out),
         .rst(reset || (~valid_ref && ~force_fine)),
+        .sync(dac_needs_sync),
         .dat(dac_rem_comp),
         .d(ds_vo)
     );
@@ -372,7 +374,7 @@ module b205_ref_pll(
                 dac_out <= (daco & 16'hfff0);
         end
         ready_prev <= ready_out;
-        if((daco & 16'hfff0) != (dac_out_prev & 16'hfff0)) dbg <= ~dbg;
+        if(dac_needs_sync) dbg <= ~dbg;
         dac_out_prev <= daco;
     end
 

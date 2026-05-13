@@ -9,6 +9,7 @@ module delta_sigma_dac
     input wire clk,
     input wire rst,
     input wire en,
+    input wire sync,
     input wire [NBITS-1:0] dat,
     output reg d
     
@@ -33,7 +34,9 @@ begin
         ds_upd <= 0;
         ds_inc<=0;
         ds_dec<=0;
-   end else begin
+   end if(sync)
+        ds_acc <= ds_tgt;
+   else begin
         if(en) begin
             if(d) begin
                 ds_acc<= ds_acc+ds_inc;
