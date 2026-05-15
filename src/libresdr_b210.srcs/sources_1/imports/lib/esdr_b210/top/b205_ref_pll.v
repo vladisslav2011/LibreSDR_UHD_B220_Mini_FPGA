@@ -226,8 +226,6 @@ module b205_ref_pll(
     localparam PRESET_CNT_BITS          =7;
     
     reg [8:0] state;
-    reg [DAC_IN_BITS-1:0] daco = 16'd32767;
-    reg [DAC_REM_BITS-1:0] dac_rem = 6'd0;
     wire signed [28:0] lock_margin = ref_is_10M ? LOCK_MARGIN_10MHZ : LOCK_MARGIN_PPS;
     wire signed [28:0] lag = lead + period;
     reg signed [28:0] phase_err;
@@ -239,14 +237,14 @@ module b205_ref_pll(
     reg signed [30:0] adj_lock_10M;
     reg signed [30:0] adj_1pps;
     reg signed [30:0] adj_buff;
-    reg signed [30:0] sum;
+    reg signed [30:0] sum = 32767 << SUM_EXTRA_BITS;
+    wire [DAC_IN_BITS-1:0] daco = sum[DAC_IN_BITS+SUM_EXTRA_BITS-1:SUM_EXTRA_BITS];
+    wire [DAC_REM_BITS-1:0] dac_rem = sum[DAC_REM_BITS-1:0];
     reg [8:0] lock_counter;
     reg ld;
     always @(posedge clk) begin
         if (reset || ~valid_ref) begin
             state <= MEASURE;
-            dac_rem <=0;
-            daco <= dac_def;
             sum <= dac_def<<<SUM_EXTRA_BITS;
             err <= 29'sd0;
             freq_err_shifted <= 29'sd0;
@@ -320,14 +318,10 @@ module b205_ref_pll(
                 APPLY_OUTPUT_VALUE: begin
                     // Clip and apply
                     if (sum < 31'sd0) begin
-                        daco <= 16'd0;
                         sum <= 31'd0;
                     end else if (sum > (31'sd65535 <<< SUM_EXTRA_BITS)) begin
-                        daco <= 16'd65535;
                         sum <= (31'sd65535 <<< SUM_EXTRA_BITS);
                     end else
-                        daco <= sum[DAC_IN_BITS+SUM_EXTRA_BITS-1:SUM_EXTRA_BITS];
-                    dac_rem <= sum[DAC_REM_BITS-1:0];
                     state <= MEASURE;
                 end
             endcase
