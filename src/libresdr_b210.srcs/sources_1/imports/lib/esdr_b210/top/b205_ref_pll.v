@@ -217,45 +217,47 @@ module b205_ref_pll(
     localparam CALCULATE_ADJUSTMENT1    =9'b100_0001;
     localparam CALCULATE_OUTPUT_VALUE   =9'b1000_0000;
     localparam APPLY_OUTPUT_VALUE       =9'b1_0000_0000;
+    localparam ERR_BITS                 = 29;
     localparam LOCK_REACHED             =9'd100;
     localparam DAC_IN_BITS              =16;
     localparam DAC_RES_BITS             =12;
     localparam SUM_EXTRA_BITS           =2;
     localparam DAC_EXTRA_BITS           =2;
+    localparam ACC_BITS                 = ERR_BITS+SUM_EXTRA_BITS;
     localparam DAC_REM_BITS             =DAC_IN_BITS-DAC_RES_BITS+DAC_EXTRA_BITS;
     localparam PRESET_CNT_BITS          =7;
     
     reg [8:0] state;
-    wire signed [28:0] lock_margin = ref_is_10M ? LOCK_MARGIN_10MHZ : LOCK_MARGIN_PPS;
-    wire signed [28:0] lag = lead + period;
-    reg signed [28:0] phase_err;
-    reg signed [30:0] freq_err_shifted;
-    reg signed [28:0] err;
-    reg signed [28:0] shift;
-    reg signed [30:0] adj;
-    reg signed [30:0] adj_no_lock_10M;
-    reg signed [30:0] adj_lock_10M;
-    reg signed [30:0] adj_1pps;
-    reg signed [30:0] adj_buff;
-    reg signed [30:0] sum = 32767 << SUM_EXTRA_BITS;
+    wire signed [ERR_BITS-1:0] lock_margin = ref_is_10M ? LOCK_MARGIN_10MHZ : LOCK_MARGIN_PPS;
+    wire signed [ERR_BITS-1:0] lag = lead + period;
+    reg signed [ERR_BITS-1:0] phase_err;
+    reg signed [ACC_BITS-1:0] freq_err_shifted;
+    reg signed [ERR_BITS-1:0] err;
+    reg signed [ERR_BITS-1:0] shift;
+    reg signed [ACC_BITS-1:0] adj;
+    reg signed [ACC_BITS-1:0] adj_no_lock_10M;
+    reg signed [ACC_BITS-1:0] adj_lock_10M;
+    reg signed [ACC_BITS-1:0] adj_1pps;
+    reg signed [ACC_BITS-1:0] adj_buff;
+    reg signed [ACC_BITS-1:0] sum = 32767 << SUM_EXTRA_BITS;
     wire [DAC_IN_BITS-1:0] daco = sum[DAC_IN_BITS+SUM_EXTRA_BITS-1:SUM_EXTRA_BITS];
-    wire [DAC_REM_BITS-1:0] dac_rem = sum[DAC_REM_BITS-1:0];
+    wire [DAC_REM_BITS-1:0] dac_rem = sum[DAC_REM_BITS+SUM_EXTRA_BITS-DAC_EXTRA_BITS-1:SUM_EXTRA_BITS-DAC_EXTRA_BITS];
     reg [8:0] lock_counter;
     reg ld;
     always @(posedge clk) begin
         if (reset || ~valid_ref) begin
             state <= MEASURE;
             sum <= dac_def<<<SUM_EXTRA_BITS;
-            err <= 29'sd0;
-            freq_err_shifted <= 29'sd0;
-            shift <= 29'sd0;
-            adj <= 31'sd0;
-            adj_no_lock_10M <= 31'sd0;
-            adj_lock_10M <= 31'sd0;
-            adj_1pps <= 31'sd0;
-            adj_buff <= 31'sd0;
-            lock_counter <= 9'd0;
-            ld <= 1'd0;
+            err <= 'sd0;
+            freq_err_shifted <= 'sd0;
+            shift <= 'sd0;
+            adj <= 'sd0;
+            adj_no_lock_10M <= 'sd0;
+            adj_lock_10M <= 'sd0;
+            adj_1pps <= 'sd0;
+            adj_buff <= 'sd0;
+            lock_counter <= 'd0;
+            ld <= 'd0;
         end
         else begin
             case(state)
@@ -317,11 +319,11 @@ module b205_ref_pll(
                 end
                 APPLY_OUTPUT_VALUE: begin
                     // Clip and apply
-                    if (sum < 31'sd0) begin
-                        sum <= 31'd0;
-                    end else if (sum > (31'sd65535 <<< SUM_EXTRA_BITS)) begin
-                        sum <= (31'sd65535 <<< SUM_EXTRA_BITS);
-                    end else
+                    if (sum < 'sd0) begin
+                        sum <= 'd0;
+                    end else if (sum > ('sd65535 <<< SUM_EXTRA_BITS)) begin
+                        sum <= ('sd65535 <<< SUM_EXTRA_BITS);
+                    end
                     state <= MEASURE;
                 end
             endcase
