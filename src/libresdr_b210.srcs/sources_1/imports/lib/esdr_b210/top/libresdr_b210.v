@@ -295,7 +295,7 @@ end
    
     wire int_40mhz;
     wire ref_pll_clk;
-    wire b205_pll_dbg;
+    wire [4:0] b205_pll_dbg;
 
     reg [15:0] dac_def = 16'h7fff;
     wire [15:0] dac_def_buf;
@@ -608,26 +608,26 @@ b205_ref_pll ref_pll_libresdr(
 
         assign             PPS_LED_inv          =   ~PPS_LED;
         assign             REF_LOCKED_inv       =   ~REF_LOCKED;
-        assign             REF_IS_10M_detect_inv=   ~(is10meg_refpll & ~b205_pll_dbg);
+        assign             REF_IS_10M_detect_inv=   ~(is10meg_refpll & ~b205_pll_dbg[0]);
         
-        assign             LED_RX1_inv          =   ~LED_RX1;
-        assign             LED_RX2_inv          =   ~LED_RX2;
+        assign             LED_RX1_inv          =   ~(LED_RX1 && (b205_pll_dbg[4:3]==2'b0));
+        assign             LED_RX2_inv          =   ~(LED_RX2 && (b205_pll_dbg[2:1]==2'b0));
         assign             LED_TXRX1_RX_inv     =   ~LED_TXRX1_RX;
         assign             LED_TXRX1_TX_inv     =   ~LED_TXRX1_TX;
         assign             LED_TXRX2_RX_inv     =   ~LED_TXRX2_RX;
         assign             LED_TXRX2_TX_inv     =   ~LED_TXRX2_TX;
         
         
-        assign             LED_RX1_R = 1'b1;
-        assign             LED_RX1_B = 1'b1; 
+        assign             LED_RX1_R = ~b205_pll_dbg[3];
+        assign             LED_RX1_B = ~b205_pll_dbg[4];
                          
-        assign             LED_RX2_R = 1'b1;  
-        assign             LED_RX2_B = 1'b1; 
+        assign             LED_RX2_R = ~b205_pll_dbg[1];
+        assign             LED_RX2_B = ~b205_pll_dbg[2];
                          
         assign             LED_TXRX1_B= 1'b1;   
         assign             LED_TXRX2_B= 1'b1;
         
-        assign             LED_USER_R = ~(is10meg_refpll & b205_pll_dbg);
+        assign             LED_USER_R = ~(is10meg_refpll & b205_pll_dbg[0]);
         //assign             LED_USER_B = 1'b1;
         
         

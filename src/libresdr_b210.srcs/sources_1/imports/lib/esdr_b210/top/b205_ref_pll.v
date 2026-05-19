@@ -15,7 +15,7 @@ module b205_ref_pll(
     output [31:0] phase_err_now,
     output reg lpps,
     output reg locked,
-    output reg dbg,
+    output reg [4:0] dbg,
 
     // SPI lines to AD5662
     output sclk,
@@ -128,7 +128,7 @@ module b205_ref_pll(
     
     
   always @(*) begin//sync the generate pps to the input pps
-    nxt_lcnt = recycle ? 26'd0 : lcnt + 1'b1;
+    nxt_lcnt = recycle ? 26'd0 : lcnt + 1;
     if (ref_is_pps&ref_rising)
         nxt_lcnt = 0;
    end
@@ -172,7 +172,7 @@ module b205_ref_pll(
             freq_err <= period - r_period_cnt;
         end
         else
-            r_period_cnt <= r_period_cnt + 28'd1;
+            r_period_cnt <= r_period_cnt + 29'd1;
     end
 
     // Phase Counter
@@ -207,16 +207,16 @@ module b205_ref_pll(
     end
 
     // PFD State Machine
-    localparam MEASURE                  =9'b1;
-    localparam CAPTURE                  =9'b10;
-    localparam CAPTURE_LAG              =9'b100;
-    localparam CAPTURE_LEAD             =9'b1000;
-    localparam CALCULATE_ERROR          =9'b1_0000;
-    localparam CALCULATE_10M_GAIN       =9'b10_0000;
-    localparam CALCULATE_ADJUSTMENT0    =9'b100_0000;
-    localparam CALCULATE_ADJUSTMENT1    =9'b100_0001;
-    localparam CALCULATE_OUTPUT_VALUE   =9'b1000_0000;
-    localparam APPLY_OUTPUT_VALUE       =9'b1_0000_0000;
+    localparam MEASURE                  =10'b00_0000_0001;
+    localparam CAPTURE                  =10'b00_0000_0010;
+    localparam CAPTURE_LAG              =10'b00_0000_0100;
+    localparam CAPTURE_LEAD             =10'b00_0000_1000;
+    localparam CALCULATE_ERROR          =10'b00_0001_0000;
+    localparam CALCULATE_10M_GAIN       =10'b00_0010_0000;
+    localparam CALCULATE_ADJUSTMENT0    =10'b00_0100_0000;
+    localparam CALCULATE_ADJUSTMENT1    =10'b00_1000_0000;
+    localparam CALCULATE_OUTPUT_VALUE   =10'b01_0000_0000;
+    localparam APPLY_OUTPUT_VALUE       =10'b10_0000_0000;
     localparam ERR_BITS                 = 29;
     localparam LOCK_REACHED             =9'd100;
     localparam DAC_IN_BITS              =16;
@@ -227,7 +227,7 @@ module b205_ref_pll(
     localparam DAC_REM_BITS             =DAC_IN_BITS-DAC_RES_BITS+DAC_EXTRA_BITS;
     localparam PRESET_CNT_BITS          =7;
     
-    reg [8:0] state;
+    reg [9:0] state;
     wire signed [ERR_BITS-1:0] lock_margin = ref_is_10M ? LOCK_MARGIN_10MHZ : LOCK_MARGIN_PPS;
     wire signed [ERR_BITS-1:0] lag = lead + period;
     reg signed [ERR_BITS-1:0] phase_err;
@@ -319,10 +319,10 @@ module b205_ref_pll(
                 end
                 APPLY_OUTPUT_VALUE: begin
                     // Clip and apply
-                    if (sum < 'sd0) begin
-                        sum <= 'd0;
-                    end else if (sum > ('sd65535 <<< SUM_EXTRA_BITS)) begin
-                        sum <= ('sd65535 <<< SUM_EXTRA_BITS);
+                    if (sum < 0) begin
+                        sum <= 0;
+                    end else if (sum > (65535 <<< SUM_EXTRA_BITS)) begin
+                        sum <= (65535 <<< SUM_EXTRA_BITS);
                     end
                     state <= MEASURE;
                 end
@@ -357,9 +357,13 @@ module b205_ref_pll(
         .d(ds_vo)
     );
 
-    always @(posedge clk)
+    always @(posedge clk) begin
         dac_rem_comp<= force_fine?(daco[DAC_IN_BITS-DAC_RES_BITS-1:0]<< DAC_EXTRA_BITS):dac_rem;
-
+        dbg[1] <= phase_err>0;
+        dbg[2] <= phase_err<0;
+        dbg[3] <= freq_err>0;
+        dbg[4] <= freq_err<0;
+    end
     always @(posedge clk) if(reset || (~valid_ref && ~force_fine)) begin
         dac_out <= daco;
         ready_prev <= 1'b0;
@@ -371,7 +375,7 @@ module b205_ref_pll(
                 dac_out <= (daco & 16'hfff0);
         end
         ready_prev <= ready_out;
-        if(dac_needs_sync) dbg <= ~dbg;
+        if(dac_needs_sync) dbg[0] <= ~dbg[0];
         dac_out_prev <= daco;
     end
 
