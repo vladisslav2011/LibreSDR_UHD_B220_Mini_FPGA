@@ -221,7 +221,7 @@ module b205_ref_pll(
     localparam LOCK_REACHED             =9'd100;
     localparam DAC_IN_BITS              =16;
     localparam DAC_RES_BITS             =12;
-    localparam SUM_EXTRA_BITS           =2;
+    localparam SUM_EXTRA_BITS           =5;
     localparam DAC_EXTRA_BITS           =2;
     localparam ACC_BITS                 = ERR_BITS+SUM_EXTRA_BITS;
     localparam DAC_REM_BITS             =DAC_IN_BITS-DAC_RES_BITS+DAC_EXTRA_BITS;
@@ -229,6 +229,7 @@ module b205_ref_pll(
     
     reg [9:0] state;
     wire signed [ERR_BITS-1:0] lock_margin = ref_is_10M ? LOCK_MARGIN_10MHZ : LOCK_MARGIN_PPS;
+    wire signed [ERR_BITS-1:0] lock_margin2x = ref_is_10M ? (LOCK_MARGIN_10MHZ<<<1) : (LOCK_MARGIN_PPS<<<1);
     wire signed [ERR_BITS-1:0] lag = lead + period;
     reg signed [ERR_BITS-1:0] phase_err;
     reg signed [ACC_BITS-1:0] freq_err_shifted;
@@ -240,10 +241,12 @@ module b205_ref_pll(
     reg signed [ACC_BITS-1:0] adj_1pps;
     reg signed [ACC_BITS-1:0] adj_buff;
     reg signed [ACC_BITS-1:0] sum = 32767 << SUM_EXTRA_BITS;
+    reg scale_down = 0;
     wire [DAC_IN_BITS-1:0] daco = sum[DAC_IN_BITS+SUM_EXTRA_BITS-1:SUM_EXTRA_BITS];
     wire [DAC_REM_BITS-1:0] dac_rem = sum[DAC_REM_BITS+SUM_EXTRA_BITS-DAC_EXTRA_BITS-1:SUM_EXTRA_BITS-DAC_EXTRA_BITS];
     reg [8:0] lock_counter;
     reg ld;
+    reg ld2x;
     always @(posedge clk) begin
         if (reset || ~valid_ref) begin
             state <= MEASURE;
@@ -257,7 +260,9 @@ module b205_ref_pll(
             adj_1pps <= 'sd0;
             adj_buff <= 'sd0;
             lock_counter <= 'd0;
+            scale_down <= 0;
             ld <= 'd0;
+            ld2x <= 'd0;
         end
         else begin
             case(state)
@@ -274,11 +279,13 @@ module b205_ref_pll(
                 CAPTURE_LAG: begin
                     phase_err <= lag;
                     ld <= (lag <= lock_margin);
+                    ld2x <= (lag > lock_margin2x);
                     state <= CALCULATE_ERROR;
                 end
                 CAPTURE_LEAD: begin
                     phase_err <= lead;
                     ld <= (-lead <= lock_margin);
+                    ld2x <= (lead < -lock_margin2x);
                     state <= CALCULATE_ERROR;
                 end
                 CALCULATE_ERROR: begin
@@ -290,6 +297,7 @@ module b205_ref_pll(
                     shift <= (err < -7 || err > 7) ? 7 : (err < 0 ? -err : err);
                     lock_counter <= (ld == 1'b1) ? ((lock_counter != LOCK_REACHED) ? lock_counter + 1 : lock_counter) : ((lock_counter != 0) ? lock_counter - 1 : 0);
                     freq_err_shifted <= freq_err<<< SUM_EXTRA_BITS;
+                    scale_down <= freq_err[ERR_BITS-1]^phase_err[ERR_BITS-1];
                     state <= CALCULATE_ADJUSTMENT0;
                 end
                 CALCULATE_ADJUSTMENT0: begin
@@ -302,8 +310,11 @@ module b205_ref_pll(
 
                     // Switch to narrow band tracking after locking
                     adj_no_lock_10M <= err <<< (shift + SUM_EXTRA_BITS);
-                    adj_lock_10M <= freq_err_shifted + phase_err;
+                    adj_lock_10M <= scale_down?((freq_err_shifted + phase_err)>>>1):(freq_err_shifted + phase_err);
                     adj_1pps <=  (adj_buff - err) <<< SUM_EXTRA_BITS; //adj <=  (err <<< 4) - err;
+                    if(ld2x) // Instant loss of lock
+                        lock_counter <= 0;
+
                     state <= CALCULATE_ADJUSTMENT1;
                 end
                 CALCULATE_ADJUSTMENT1: begin
