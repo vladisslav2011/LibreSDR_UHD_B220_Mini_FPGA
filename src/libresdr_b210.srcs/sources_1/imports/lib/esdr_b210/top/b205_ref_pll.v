@@ -221,7 +221,7 @@ module b205_ref_pll(
     localparam LOCK_REACHED             =9'd100;
     localparam DAC_IN_BITS              =16;
     localparam DAC_RES_BITS             =12;
-    localparam SUM_EXTRA_BITS           =5;
+    localparam SUM_EXTRA_BITS           =6;
     localparam DAC_EXTRA_BITS           =2;
     localparam ACC_BITS                 = ERR_BITS+SUM_EXTRA_BITS;
     localparam DAC_REM_BITS             =DAC_IN_BITS-DAC_RES_BITS+DAC_EXTRA_BITS;
@@ -232,6 +232,7 @@ module b205_ref_pll(
     wire signed [ERR_BITS-1:0] lock_margin2x = ref_is_10M ? (LOCK_MARGIN_10MHZ<<<1) : (LOCK_MARGIN_PPS<<<1);
     wire signed [ERR_BITS-1:0] lag = lead + period;
     reg signed [ERR_BITS-1:0] phase_err;
+    reg signed [ERR_BITS-1:0] phase_err_shifted;
     reg signed [ACC_BITS-1:0] freq_err_shifted;
     reg signed [ERR_BITS-1:0] err;
     reg signed [ERR_BITS-1:0] shift;
@@ -253,6 +254,7 @@ module b205_ref_pll(
             sum <= dac_def<<<SUM_EXTRA_BITS;
             err <= 'sd0;
             freq_err_shifted <= 'sd0;
+            phase_err_shifted <= 'sd0;
             shift <= 'sd0;
             adj <= 'sd0;
             adj_no_lock_10M <= 'sd0;
@@ -297,7 +299,9 @@ module b205_ref_pll(
                     shift <= (err < -7 || err > 7) ? 7 : (err < 0 ? -err : err);
                     lock_counter <= (ld == 1'b1) ? ((lock_counter != LOCK_REACHED) ? lock_counter + 1 : lock_counter) : ((lock_counter != 0) ? lock_counter - 1 : 0);
                     freq_err_shifted <= freq_err<<< SUM_EXTRA_BITS;
-                    scale_down <= freq_err[ERR_BITS-1]^phase_err[ERR_BITS-1];
+                    phase_err_shifted <= phase_err<<<1;
+                    if(freq_err != 'sd0)
+                        scale_down <= freq_err[ERR_BITS-1]^phase_err[ERR_BITS-1];
                     state <= CALCULATE_ADJUSTMENT0;
                 end
                 CALCULATE_ADJUSTMENT0: begin
@@ -310,7 +314,7 @@ module b205_ref_pll(
 
                     // Switch to narrow band tracking after locking
                     adj_no_lock_10M <= err <<< (shift + SUM_EXTRA_BITS);
-                    adj_lock_10M <= scale_down?((freq_err_shifted + phase_err)>>>1):(freq_err_shifted + phase_err);
+                    adj_lock_10M <= scale_down?((freq_err_shifted + phase_err_shifted)>>>1):(freq_err_shifted + phase_err_shifted);
                     adj_1pps <=  (adj_buff - err) <<< SUM_EXTRA_BITS; //adj <=  (err <<< 4) - err;
                     if(ld2x) // Instant loss of lock
                         lock_counter <= 0;
