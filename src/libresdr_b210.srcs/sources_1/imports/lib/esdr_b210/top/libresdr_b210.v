@@ -297,7 +297,11 @@ end
     wire ref_pll_clk;
     wire [4:0] b205_pll_dbg;
 
-    reg [15:0] dac_def = 16'h7fff;
+    reg [15:0] dac_def =
+        16'h7fff;  // default
+//        16'h8e90;  // sample 0
+//        16'ha8f0;  // sample 1
+//        16'h8e00;  // sample 2
     wire [15:0] dac_def_buf;
     wire [31:0] dac_now;
     wire [31:0] phase_err_now;
@@ -350,10 +354,6 @@ b205_ref_pll ref_pll_libresdr(
     .refclk (int_40mhz),   // 40 MHz reference clock
     .ref    (ext_ref),      // PPS or 10 MHz external reference
     .force_fine(tune_fine_buf),
-    //.dac_def(16'h7fff),  // default
-    //.dac_def(16'h8e10),  // sample 0
-    //.dac_def(16'haba0),  // sample 1
-    //.dac_def(16'h8d40),  // sample 2
     .dac_def(dac_def_buf),
     .dac_now(dac_now),
     .phase_err_now(phase_err_now),
